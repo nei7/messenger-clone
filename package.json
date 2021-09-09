@@ -4,13 +4,17 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "commitizen": "^4.2.4"
+    "@nestjs/jwt": "^8.0.0",
+    "passport-jwt": "^4.0.0"
   },
   "devDependencies": {
-    "cz-conventional-changelog": "^3.3.0"
+    "commitizen": "^4.2.4",
+    "cz-conventional-changelog": "^3.3.0",
+    "standard-version": "^9.3.1"
   },
   "scripts": {
-    "commit": "cz"
+    "commit": "cz",
+    "release": "standard-version"
   },
   "keywords": [],
   "author": "",
