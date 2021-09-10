@@ -37,13 +37,21 @@
   </section>
 </template>
 <script lang="ts">
-import { defineComponent, ref, reactive, toRefs } from "vue";
+import {
+  defineComponent,
+  ref,
+  reactive,
+  toRefs,
+  ComponentPublicInstance,
+} from "vue";
 import * as Yup from "yup";
 import api from "../api";
 
+type Fields = { [index: string]: ComponentPublicInstance };
+
 export default defineComponent({
   setup() {
-    const fields = ref({});
+    const fields = ref<Fields>({});
 
     const data = reactive({
       username: "",
@@ -68,7 +76,9 @@ export default defineComponent({
         if (err instanceof Yup.ValidationError) {
           Object.keys(fields.value).forEach((key) => {
             const field = fields.value[key].$.props;
-            const error = err.inner.find((error) => error.path === key);
+            const error = err.inner.find(
+              (error: { path: string }) => error.path === key
+            );
             if (error) {
               field.status = "danger";
               field.message = error.message;

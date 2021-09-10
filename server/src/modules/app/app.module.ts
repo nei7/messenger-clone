@@ -6,7 +6,6 @@ import { AppService } from './app.service';
 import { User } from '../../entities/user.entity';
 import { AuthModule } from '../auth/auth.module';
 import { ChatGateway } from '../../gateways/chat.gateway';
-import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -20,7 +19,6 @@ import { ConfigModule } from '@nestjs/config';
       synchronize: true,
     }),
     AuthModule,
-    ConfigModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService, ChatGateway],

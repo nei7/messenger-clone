@@ -9,6 +9,7 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.stategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MailService } from 'src/mailer/mailer.service';
 
 @Module({
   imports: [
@@ -25,7 +26,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     ConfigModule,
     TypeOrmModule.forFeature([User]),
   ],
-  providers: [AuthService, UserService, LocalStrategy, JwtStrategy],
+  providers: [
+    AuthService,
+    UserService,
+    MailService,
+    LocalStrategy,
+    JwtStrategy,
+  ],
   controllers: [AuthController],
 })
 export class AuthModule {}
