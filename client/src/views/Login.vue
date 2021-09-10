@@ -2,14 +2,17 @@
   <section class="login">
     <div class="login__form">
       <div class="header">
-        <h2>Welcome</h2>
-        <p>Here you can create your account</p>
+        <h2>Login</h2>
       </div>
 
-      <it-input placeholder="Type your username here" />
       <it-input placeholder="Type your email here" />
       <it-input placeholder="Type your password here" />
       <it-button type="primary" style="margin-top:1rem">Submit</it-button>
+      <router-link
+        :to="{ name: 'Register' }"
+        style="margin-top:1rem; cursor:pointer; text-decoration:none;color:black"
+        >I don't have account</router-link
+      >
     </div>
   </section>
 </template>
@@ -35,7 +38,8 @@
   margin-bottom: 1.5rem;
 }
 
-.header p {
+.login__form p,
+a {
   margin-top: 7px;
   font-size: 0.9rem;
   opacity: 0.7;

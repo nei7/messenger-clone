@@ -7,8 +7,9 @@ import Equal from "equal-vue";
 import "equal-vue/dist/style.css";
 import "./assets/main.css";
 
-createApp(App)
-  .use(Equal)
-  .use(store)
-  .use(router)
-  .mount("#app");
+const app = createApp(App);
+
+app.use(router);
+app.use(Equal);
+app.use(store);
+app.mount("#app");
