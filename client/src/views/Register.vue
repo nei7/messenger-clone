@@ -33,6 +33,22 @@
         style="margin-top:1rem; cursor:pointer; text-decoration:none; color:black"
         >I have account</router-link
       >
+
+      <div v-if="loggedIn" class="loggedIn">
+        <div>
+          <div class="header" style="text-align:center">
+            <h2>Success!</h2>
+            <p>{{ message }}</p>
+          </div>
+          <it-button
+            type="primary"
+            @click="$router.push('/login')"
+            style="margin:auto"
+          >
+            Login
+          </it-button>
+        </div>
+      </div>
     </div>
   </section>
 </template>
@@ -52,8 +68,10 @@ type Fields = { [index: string]: ComponentPublicInstance };
 export default defineComponent({
   setup() {
     const fields = ref<Fields>({});
+    const loggedIn = ref(false);
+    const message = ref("");
 
-    const data = reactive({
+    const loginData = reactive({
       username: "",
       email: "",
       password: "",
@@ -69,9 +87,12 @@ export default defineComponent({
 
     const login = async () => {
       try {
-        await schema.validateSync(data, { abortEarly: false });
+        await schema.validateSync(loginData, { abortEarly: false });
 
-        api.post("auth/register", data);
+        const { data } = await api.post("auth/register", loginData);
+
+        message.value = data.message;
+        loggedIn.value = true;
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
           Object.keys(fields.value).forEach((key) => {
@@ -92,9 +113,11 @@ export default defineComponent({
     };
 
     return {
-      ...toRefs(data),
+      ...toRefs(loginData),
       login,
       fields,
+      loggedIn,
+      message,
     };
   },
 });
@@ -102,12 +125,14 @@ export default defineComponent({
 
 <style>
 .login__form {
+  position: relative;
   display: grid;
   justify-items: center;
   gap: 1rem;
   background-color: white;
   padding: 3rem 4rem;
   border-radius: 0.5rem;
+  max-width: 20rem;
 }
 .login__form h2 {
   margin: 0px;
@@ -153,5 +178,20 @@ a {
   justify-content: center;
   align-content: center;
   align-items: center;
+}
+
+.loggedIn {
+  position: absolute;
+  min-height: 20rem;
+  width: 100%;
+  background: white;
+  padding: 3em 4em;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-items: center;
+
+  max-width: 20rem;
 }
 </style>

@@ -1,0 +1,19 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+
+cwd=$(pwd)
+
+echo 'Lint frontend'
+
+cd cwd/client
+
+npm run lint
+
+
+echo 'Lint backend'
+
+cd cwd/server
+
+npm run lint
+
