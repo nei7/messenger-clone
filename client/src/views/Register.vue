@@ -8,8 +8,8 @@
 
       <it-input
         placeholder="Type your username here"
-        v-model="username"
-        :ref="(el) => (fields.username = el)"
+        v-model="name"
+        :ref="(el) => (fields.name = el)"
       />
 
       <it-input
@@ -59,26 +59,30 @@ import {
   reactive,
   toRefs,
   ComponentPublicInstance,
+  inject,
 } from "vue";
 import * as Yup from "yup";
 import api from "../api";
+import { Loading } from "../types/loading";
 
 type Fields = { [index: string]: ComponentPublicInstance };
 
 export default defineComponent({
   setup() {
+    const $loading = inject("loading") as Loading;
+
     const fields = ref<Fields>({});
     const loggedIn = ref(false);
     const message = ref("");
 
     const loginData = reactive({
-      username: "",
+      name: "",
       email: "",
       password: "",
     });
 
     const schema = Yup.object().shape({
-      username: Yup.string().required("Username is required"),
+      name: Yup.string().required("Username is required"),
       email: Yup.string()
         .required("Email is required")
         .email("Must be a valid email"),
@@ -86,6 +90,7 @@ export default defineComponent({
     });
 
     const login = async () => {
+      const loading = $loading(document.querySelector(".login__form")!);
       try {
         await schema.validateSync(loginData, { abortEarly: false });
 
@@ -94,21 +99,26 @@ export default defineComponent({
         message.value = data.message;
         loggedIn.value = true;
       } catch (err) {
-        if (err instanceof Yup.ValidationError) {
+        if (err instanceof Yup.ValidationError || err.response.data?.errors) {
           Object.keys(fields.value).forEach((key) => {
             const field = fields.value[key].$.props;
-            const error = err.inner.find(
+
+            const v = err.inner || err.response.data?.errors;
+
+            const error = v.find(
               (error: { path: string }) => error.path === key
             );
             if (error) {
               field.status = "danger";
-              field.message = error.message;
+              field.message = error.message || error.error;
             } else {
               field.status = undefined;
               field.message = undefined;
             }
           });
         }
+      } finally {
+        loading.destroy();
       }
     };
 
@@ -182,16 +192,14 @@ a {
 
 .loggedIn {
   position: absolute;
-  min-height: 20rem;
+  height: 100%;
   width: 100%;
   background: white;
-  padding: 3em 4em;
+  padding: 0;
   border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   justify-items: center;
-
-  max-width: 20rem;
 }
 </style>

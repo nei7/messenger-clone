@@ -1,0 +1,19 @@
+.loading__overlay {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  background-color: white;
+}
+
+.loading__overlay div {
+  display: grid;
+  justify-items: center;
+}
+
+.loading__overlay p {
+  font-size: 1rem;
+  margin-top: 1rem;
+}

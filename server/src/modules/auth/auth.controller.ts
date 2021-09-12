@@ -4,18 +4,18 @@ import {
   Get,
   Post,
   Query,
-  Req,
   Request,
   Res,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guar';
-import { MailService } from 'src/mailer/mailer.service';
+import { MailService } from 'src/modules/mailer/mailer.service';
 import { UserService } from 'src/modules/user/user.service';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
 import * as jwt from 'jsonwebtoken';
 import { Response } from 'express';
+import { RegisterDto } from './dto/register.dto';
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -25,11 +25,7 @@ export class AuthController {
   ) {}
 
   @Post('/register')
-  async register(
-    @Body('username') name: string,
-    @Body('email') email: string,
-    @Body('password') password: string,
-  ) {
+  async register(@Body() { name, email, password }: RegisterDto) {
     const token = jwt.sign({ name, email, password }, process.env.JWT_SECRET, {
       expiresIn: '20m',
     });

@@ -1,6 +1,6 @@
 <template>
   <section class="login">
-    <div class="login__form">
+    <div class="login__form" ref="form">
       <div class="header">
         <h2>Login</h2>
       </div>
@@ -16,6 +16,11 @@
     </div>
   </section>
 </template>
+<script lang="ts">
+import { defineComponent } from "vue";
+
+export default defineComponent({});
+</script>
 
 <style>
 .login__form {
