@@ -1,26 +1,17 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-
-import { User } from '../../entities/user.entity';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+import db from 'src/common/config/db';
 import { AuthModule } from '../auth/auth.module';
-import { ChatGateway } from '../../gateways/chat.gateway';
+import { ChatGateway } from '../chat/chat.gateway';
+import { RoomsModule } from '../rooms/rooms.module';
+
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: 'password',
-      database: 'chat',
-      entities: [User],
-      synchronize: true,
-    }),
+    TypeOrmModule.forRoot(db as TypeOrmModuleOptions),
     AuthModule,
+    RoomsModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, ChatGateway],
+  controllers: [],
+  providers: [ChatGateway],
 })
 export class AppModule {}

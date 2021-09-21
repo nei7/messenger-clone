@@ -21,12 +21,12 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@nestjs/common": "^8.0.0",
+    "@nestjs/common": "^8.0.6",
     "@nestjs/config": "^1.0.1",
-    "@nestjs/core": "^8.0.0",
+    "@nestjs/core": "^8.0.6",
     "@nestjs/jwt": "^8.0.0",
     "@nestjs/passport": "^8.0.1",
-    "@nestjs/platform-express": "^8.0.0",
+    "@nestjs/platform-express": "^8.0.6",
     "@nestjs/platform-socket.io": "^8.0.6",
     "@nestjs/typeorm": "^8.0.2",
     "@nestjs/websockets": "^8.0.6",
@@ -37,6 +37,7 @@
     "class-validator": "^0.13.1",
     "dotenv": "^10.0.0",
     "mysql2": "^2.3.0",
+    "nanoid": "^3.1.25",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",

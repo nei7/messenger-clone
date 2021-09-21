@@ -7,7 +7,7 @@ import Equal from "equal-vue";
 import loading from "./plugins/loading";
 
 import "equal-vue/dist/style.css";
-import "./assets/main.css";
+import "./index.css";
 
 const app = createApp(App);
 

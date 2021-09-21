@@ -5,9 +5,20 @@
         <h2>Login</h2>
       </div>
 
-      <it-input placeholder="Type your email here" />
-      <it-input placeholder="Type your password here" />
-      <it-button type="primary" style="margin-top:1rem">Submit</it-button>
+      <it-input
+        placeholder="Type your email here"
+        v-model="email"
+        :ref="(el) => (fields.email = el)"
+      />
+      <it-input
+        placeholder="Type your password here"
+        type="password"
+        v-model="password"
+        :ref="(el) => (fields.password = el)"
+      />
+      <it-button type="primary" style="margin-top:1rem" @click="login"
+        >Submit</it-button
+      >
       <router-link
         :to="{ name: 'Register' }"
         style="margin-top:1rem; cursor:pointer; text-decoration:none;color:black"
@@ -15,11 +26,88 @@
       >
     </div>
   </section>
+  <it-modal v-model="$route.query.ok">
+    <template #header>
+      <h3 style="margin: 0">Info</h3>
+    </template>
+
+    <template #body>
+      <p>
+        {{
+          $route.query.ok === "false"
+            ? "Account already exist"
+            : "Account created succesfully"
+        }}
+      </p>
+    </template>
+    <template #actions>
+      <it-button type="primary" @click="$router.replace({ ok: null })"
+        >Got it</it-button
+      >
+    </template>
+  </it-modal>
 </template>
 <script lang="ts">
-import { defineComponent } from "vue";
+import { ComponentPublicInstance, defineComponent, ref } from "vue";
+import api from "../api";
+import * as Yup from "yup";
 
-export default defineComponent({});
+type Fields = { [index: string]: ComponentPublicInstance };
+
+export default defineComponent({
+  setup() {
+    const fields = ref<Fields>({});
+
+    const email = ref("");
+    const password = ref("");
+
+    const schema = Yup.object().shape({
+      email: Yup.string()
+        .required("Email is required")
+        .email("Must be a valid email"),
+      password: Yup.string().required("Password is required"),
+    });
+
+    const login = async () => {
+      try {
+        await schema.validateSync(
+          { email: email.value, password: password.value },
+          { abortEarly: false }
+        );
+        api.post("auth/login", {
+          email: email.value,
+          password: password.value,
+        });
+      } catch (err) {
+        if (err instanceof Yup.ValidationError) {
+          Object.keys(fields.value).forEach((key) => {
+            const field = fields.value[key].$.props;
+
+            const v = err.inner || err.response.data?.errors;
+
+            const error = v.find(
+              (error: { path: string }) => error.path === key
+            );
+            if (error) {
+              field.status = "danger";
+              field.message = error.message || error.error;
+            } else {
+              field.status = undefined;
+              field.message = undefined;
+            }
+          });
+        }
+      }
+    };
+
+    return {
+      email,
+      password,
+      fields,
+      login,
+    };
+  },
+});
 </script>
 
 <style>
@@ -51,24 +139,7 @@ a {
 }
 
 .login {
-  background: rgb(5, 155, 252);
-  background: -moz-linear-gradient(
-    -21deg,
-    rgba(5, 155, 252, 0.1) 27%,
-    rgba(73, 82, 255, 0.3) 100%
-  );
-  background: -webkit-linear-gradient(
-    -21deg,
-    rgba(5, 155, 252, 0.1) 27%,
-    rgba(73, 82, 255, 0.3) 100%
-  );
-  background: linear-gradient(
-    -21deg,
-    rgba(5, 155, 252, 0.1) 27%,
-    rgba(73, 82, 255, 0.3) 100%
-  );
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#059bfc",endColorstr="#4952ff",GradientType=1);
-
+  background-color: #f9fafb;
   width: 100%;
   height: 100vh;
   display: flex;

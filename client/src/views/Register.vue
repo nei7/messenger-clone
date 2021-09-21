@@ -50,6 +50,18 @@
         </div>
       </div>
     </div>
+    <it-modal v-model="error.show">
+      <template #header>
+        <h3 style="margin: 0">Error</h3>
+      </template>
+
+      <template #body>
+        <p>{{ error.message }}</p>
+      </template>
+      <template #actions>
+        <it-button type="primary" @click="error.show = false">ok</it-button>
+      </template>
+    </it-modal>
   </section>
 </template>
 <script lang="ts">
@@ -74,6 +86,10 @@ export default defineComponent({
     const fields = ref<Fields>({});
     const loggedIn = ref(false);
     const message = ref("");
+    let error = reactive({
+      show: false,
+      message: "",
+    });
 
     const loginData = reactive({
       name: "",
@@ -90,16 +106,17 @@ export default defineComponent({
     });
 
     const login = async () => {
-      const loading = $loading(document.querySelector(".login__form")!);
+      let loading;
       try {
         await schema.validateSync(loginData, { abortEarly: false });
 
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        loading = $loading(document.querySelector(".login__form")!);
         const { data } = await api.post("auth/register", loginData);
-
         message.value = data.message;
         loggedIn.value = true;
       } catch (err) {
-        if (err instanceof Yup.ValidationError || err.response.data?.errors) {
+        if (err instanceof Yup.ValidationError || err?.response?.data?.errors) {
           Object.keys(fields.value).forEach((key) => {
             const field = fields.value[key].$.props;
 
@@ -116,9 +133,12 @@ export default defineComponent({
               field.message = undefined;
             }
           });
+        } else {
+          error.show = true;
+          error.message = err.message;
         }
       } finally {
-        loading.destroy();
+        loading?.destroy();
       }
     };
 
@@ -128,68 +148,13 @@ export default defineComponent({
       fields,
       loggedIn,
       message,
+      error,
     };
   },
 });
 </script>
 
 <style>
-.login__form {
-  position: relative;
-  display: grid;
-  justify-items: center;
-  gap: 1rem;
-  background-color: white;
-  padding: 3rem 4rem;
-  border-radius: 0.5rem;
-  max-width: 20rem;
-}
-.login__form h2 {
-  margin: 0px;
-}
-
-.login__form .it-input-prefix-wrapper {
-  width: 20rem;
-}
-.login__form .header {
-  width: 100%;
-  margin-bottom: 1.5rem;
-}
-
-.login__form p,
-a {
-  margin-top: 7px;
-  font-size: 0.9rem;
-  opacity: 0.7;
-}
-
-.login {
-  background: rgb(5, 155, 252);
-  background: -moz-linear-gradient(
-    -21deg,
-    rgba(5, 155, 252, 0.1) 27%,
-    rgba(73, 82, 255, 0.3) 100%
-  );
-  background: -webkit-linear-gradient(
-    -21deg,
-    rgba(5, 155, 252, 0.1) 27%,
-    rgba(73, 82, 255, 0.3) 100%
-  );
-  background: linear-gradient(
-    -21deg,
-    rgba(5, 155, 252, 0.1) 27%,
-    rgba(73, 82, 255, 0.3) 100%
-  );
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#059bfc",endColorstr="#4952ff",GradientType=1);
-
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-content: center;
-  align-items: center;
-}
-
 .loggedIn {
   position: absolute;
   height: 100%;

@@ -1,0 +1,36 @@
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+.it-input-wrapper {
+  height: 38px;
+}
+
+.it-input {
+  font-size: 0.78rem;
+  padding: 18px 13px;
+}
+.it-btn--primary {
+  background-color: rgb(10, 132, 255);
+  border: 1px solid rgb(10, 132, 255);
+}
+.it-btn--primary:focus {
+  box-shadow: 0 2px 4px rgb(10 132 255 / 40%), 0 0 0 3px rgb(10 132 255 / 20%);
+}
+.it-btn--primary:hover {
+  background-color: rgba(10, 132, 255, 0.8);
+  border: 1px solid rgba(10, 132, 255, 0.8);
+}
+.it-input-wrapper:focus-within {
+  border: 1px solid rgba(10, 132, 255, 0.8);
+  box-shadow: 0 2px 4px rgb(10 132 255 / 40%), 0 0 0 3px rgb(10 132 255 / 20%);
+}
+
+.login__form .it-btn--normal {
+  padding: 0.8rem 1.7rem;
+}
+.it-modal-footer {
+  padding: 10px 24px;
+}

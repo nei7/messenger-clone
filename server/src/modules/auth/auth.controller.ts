@@ -8,11 +8,10 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guar';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { MailService } from 'src/modules/mailer/mailer.service';
 import { UserService } from 'src/modules/user/user.service';
 import { AuthService } from './auth.service';
-import { LocalAuthGuard } from './local-auth.guard';
 import * as jwt from 'jsonwebtoken';
 import { Response } from 'express';
 import { RegisterDto } from './dto/register.dto';
@@ -43,15 +42,16 @@ export class AuthController {
     return { message: 'Verification message has been sent to ' + email };
   }
 
-  @UseGuards(LocalAuthGuard)
   @Post('/login')
   async login(
     @Body('email') email: string,
     @Body('password') password: string,
     @Request() req,
   ) {
-    delete req.user.password;
-    return req.user;
+    const user = await this.authService.login(email, password);
+    delete user.password;
+
+    return user;
   }
 
   @UseGuards(JwtAuthGuard)
@@ -66,20 +66,27 @@ export class AuthController {
     @Res() res: Response,
     @Request() req,
   ) {
-    const { name, email, password } = (await jwt.verify(
-      token,
-      process.env.JWT_SECRET,
-    )) as { name: string; email: string; password: string };
+    try {
+      const { name, email, password } = (await jwt.verify(
+        token,
+        process.env.JWT_SECRET,
+      )) as { name: string; email: string; password: string };
 
-    const hashedPassword = await this.userService.hashPassword(password);
-    await this.userService.createUser({
-      name,
-      email,
-      password: hashedPassword,
-    });
+      const hashedPassword = await this.userService.hashPassword(password);
 
-    return res.redirect(
-      `http://${req.headers.host.split(':')[0]}:8080/login?ok=true`,
-    );
+      await this.userService.createUser({
+        name,
+        email,
+        password: hashedPassword,
+      });
+
+      return res.redirect(
+        `http://${req.headers.host.split(':')[0]}:8080/login?ok=true`,
+      );
+    } catch (err) {
+      return res.redirect(
+        `http://${req.headers.host.split(':')[0]}:8080/login?ok=false`,
+      );
+    }
   }
 }
