@@ -1,6 +1,6 @@
 <template>
   <div class="contact">
-    <it-avatar :src="avatar" size="50px" />
+    <it-avatar :src="avatar" size="40px" color="#0a84ff" />
     <div class="contact__info">
       <p class="name">{{ name }}</p>
       <p class="last__message">
@@ -42,6 +42,7 @@ export default defineComponent({
   flex-direction: row;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+  margin-bottom: 10px;
 }
 
 .contact:hover {
@@ -52,21 +53,26 @@ export default defineComponent({
   padding-left: 0.75rem;
   flex-direction: column;
   display: flex;
+  justify-items: center;
+  justify-content: center;
   flex: 1 1 0%;
   margin: 0px;
 }
 .name {
+  text-shadow: 0px 4px 17px rgba(0, 0, 0, 0.13);
+  opacity: 0.9;
   font-weight: 400;
-  font-size: 1.1rem;
+  font-size: 0.96rem;
+  margin-bottom: 5px;
 }
 .last__message {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 400;
-  color: #787f8a;
+  opacity: 0.6;
 }
 .timestamp {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 400;
-  color: #787f8a;
+  opacity: 0.5;
 }
 </style>

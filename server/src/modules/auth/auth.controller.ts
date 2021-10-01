@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -29,6 +30,10 @@ export class AuthController {
       expiresIn: '20m',
     });
 
+    const user = await this.userService.findOne({ email });
+
+    if (user) throw new BadRequestException('User already exists');
+
     await this.mailService.sendMail({
       to: email,
       subject: 'Verify your account',
@@ -46,7 +51,6 @@ export class AuthController {
   async login(
     @Body('email') email: string,
     @Body('password') password: string,
-    @Request() req,
   ) {
     const user = await this.authService.login(email, password);
     delete user.password;

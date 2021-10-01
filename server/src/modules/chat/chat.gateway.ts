@@ -6,16 +6,17 @@ import {
 
 import { Server, Socket } from 'socket.io';
 
-@WebSocketGateway(5000, { namespace: 'chat' })
+@WebSocketGateway()
 export class ChatGateway {
   @WebSocketServer()
-  private server: Server;
+  server: Server;
 
   @SubscribeMessage('message')
   handleMessage(
     client: Socket,
     message: { sender: string; room: string; message: string },
   ): void {
+    console.log(client.rooms);
     this.server.to(message.room).emit('message', message);
   }
 

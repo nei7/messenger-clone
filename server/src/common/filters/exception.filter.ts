@@ -19,8 +19,6 @@ export class ErrorFilter implements ExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const errors = exception?.response ? exception.response.message : null;
-
     if (!exception) {
       return response.status(500).json({
         error: 'Internal Server error',
@@ -29,10 +27,11 @@ export class ErrorFilter implements ExceptionFilter {
       });
     }
 
+    const error = exception.response?.message ?? exception.response;
     response.status(status).json({
       type: exception.name,
       message: exception.message,
-      errors,
+      ...(Array.isArray(error) ? { errors: error } : { error }),
       timestamp: new Date().toISOString(),
       path: request.url,
     });

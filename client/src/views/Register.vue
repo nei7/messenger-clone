@@ -1,5 +1,5 @@
 <template>
-  <section class="login">
+  <section class="login animated fadeIn">
     <div class="login__form">
       <div class="header">
         <h2>Welcome</h2>
@@ -33,23 +33,25 @@
         style="margin-top:1rem; cursor:pointer; text-decoration:none; color:black"
         >I have account</router-link
       >
-
-      <div v-if="loggedIn" class="loggedIn">
-        <div>
-          <div class="header" style="text-align:center">
-            <h2>Success!</h2>
-            <p>{{ message }}</p>
+      <transition name="slide-fade">
+        <div v-if="loggedIn" class="loggedIn">
+          <div>
+            <div class="header" style="text-align:center">
+              <h2>Success!</h2>
+              <p>{{ message }}</p>
+            </div>
+            <it-button
+              type="primary"
+              @click="$router.push('/login')"
+              style="margin:auto"
+            >
+              Login
+            </it-button>
           </div>
-          <it-button
-            type="primary"
-            @click="$router.push('/login')"
-            style="margin:auto"
-          >
-            Login
-          </it-button>
         </div>
-      </div>
+      </transition>
     </div>
+
     <it-modal v-model="error.show">
       <template #header>
         <h3 style="margin: 0">Error</h3>
@@ -111,7 +113,11 @@ export default defineComponent({
         await schema.validateSync(loginData, { abortEarly: false });
 
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        loading = $loading(document.querySelector(".login__form")!);
+        loading = $loading(document.querySelector(".login__form")!, {
+          radius: 25,
+          stroke: 3,
+          color: "#0A84FF",
+        });
         const { data } = await api.post("auth/register", loginData);
         message.value = data.message;
         loggedIn.value = true;

@@ -2,6 +2,8 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -19,8 +21,9 @@ export class Room {
   @Column({ unique: true, nullable: false })
   name: string;
 
-  @OneToOne(() => User)
-  @JoinColumn()
+  @ManyToOne(() => User, (user) => user.id, {
+    cascade: ['insert', 'update'],
+  })
   creator: User;
 
   @Column({

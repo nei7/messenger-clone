@@ -8,6 +8,7 @@ import loading from "./plugins/loading";
 
 import "equal-vue/dist/style.css";
 import "./index.css";
+import "animate.css";
 
 const app = createApp(App);
 

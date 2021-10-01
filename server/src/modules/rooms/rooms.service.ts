@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Room } from 'src/entities/room.entity';
 import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
+import { nanoid } from 'nanoid';
 
 @Injectable()
 export class RoomsService {
@@ -13,6 +14,7 @@ export class RoomsService {
   public async createRoom(name: string, owner: User) {
     return await this.roomRepository.save({
       name,
+      nanoid: nanoid(),
       creator: owner,
     });
   }
@@ -30,5 +32,9 @@ export class RoomsService {
 
     delete room.creator.password;
     return room;
+  }
+
+  public async deleteRoom(id: string) {
+    return this.roomRepository.delete({ nanoid: id });
   }
 }
