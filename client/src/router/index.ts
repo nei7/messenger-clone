@@ -6,6 +6,10 @@ import App from "../views/Main.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
+    path: "/",
+    redirect: "/login",
+  },
+  {
     path: "/register",
     name: "Register",
     component: Register,

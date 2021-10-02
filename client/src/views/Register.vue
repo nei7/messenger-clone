@@ -141,7 +141,7 @@ export default defineComponent({
           });
         } else {
           error.show = true;
-          error.message = err.message;
+          error.message = err?.response.data?.error ?? err.message;
         }
       } finally {
         loading?.destroy();

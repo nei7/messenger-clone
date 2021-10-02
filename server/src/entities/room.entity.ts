@@ -1,12 +1,4 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from './user.entity';
 import { nanoid } from 'nanoid';
 
@@ -22,7 +14,7 @@ export class Room {
   name: string;
 
   @ManyToOne(() => User, (user) => user.id, {
-    cascade: ['insert', 'update'],
+    cascade: true,
   })
   creator: User;
 

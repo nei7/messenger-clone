@@ -127,7 +127,7 @@ export default defineComponent({
   width: 20rem;
 }
 .login__form .header {
-  width: 100%;
+  padding: 1rem;
   margin-bottom: 1.5rem;
 }
 

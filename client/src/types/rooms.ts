@@ -1,4 +1,4 @@
-export type User = {
+export type IUser = {
   id: number;
   name: string;
   email: string;
@@ -6,5 +6,5 @@ export type User = {
 
 export interface Room {
   id: string;
-  owner: User;
+  owner: IUser;
 }

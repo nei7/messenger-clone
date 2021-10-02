@@ -27,4 +27,10 @@ export class UserService {
   async findOne(condition: any): Promise<User> {
     return this.userRepository.findOne(condition);
   }
+
+  async getUsers() {
+    return this.userRepository.find({
+      select: ['email', 'id', 'name'],
+    });
+  }
 }

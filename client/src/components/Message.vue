@@ -2,7 +2,9 @@
   <div class="message" :class="direction === 'right' ? 'right' : null">
     <it-avatar color="#0a84ff" size="32px" />
     <div>
-      <p>siema <span>12:30</span></p>
+      <p>
+        {{ user }} <span>{{ timestamp }}</span>
+      </p>
       <div class="card">
         <p>{{ content }}</p>
       </div>
@@ -100,6 +102,13 @@ export default defineComponent({
     content: {
       type: String,
       required: true,
+    },
+    timestamp: {
+      required: true,
+      type: String,
+    },
+    user: {
+      type: String,
     },
   },
 });

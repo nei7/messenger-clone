@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  api:
+    build:
+      context: ./server
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql_server
+
+  client:
+    build:
+      context: ./client
+
+  nginx:
+    depends_on:
+      - api
+      - client
+    restart: always
+    build:
+      context: ./nginx
+    ports:
+      - "80:80"
+
+  mysql_server:
+    image: "mysql"
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: chat

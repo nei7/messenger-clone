@@ -25,48 +25,7 @@
         <p>siema</p>
       </header>
       <div class="chat__container">
-        <Message
-          direction="right"
-          content="msg1"
-          :date="new Date().toLocaleString()"
-        />
-
-        <Message content="msg2" :date="new Date().toLocaleString()" />
-
-        <Message
-          direction="right"
-          content="msg3"
-          :date="new Date().toLocaleString()"
-        />
-        <Message content="lorem ipsum" :date="new Date().toLocaleString()" />
-        <Message
-          direction="right"
-          content="msg1"
-          :date="new Date().toLocaleString()"
-        />
-
-        <Message content="msg2" :date="new Date().toLocaleString()" />
-
-        <Message
-          direction="right"
-          content="msg3"
-          :date="new Date().toLocaleString()"
-        />
-        <Message content="lorem ipsum" :date="new Date().toLocaleString()" />
-        <Message
-          direction="right"
-          content="msg1"
-          :date="new Date().toLocaleString()"
-        />
-
-        <Message content="msg2" :date="new Date().toLocaleString()" />
-
-        <Message
-          direction="right"
-          content="msg3"
-          :date="new Date().toLocaleString()"
-        />
-        <Message content="lorem ipsum" :date="new Date().toLocaleString()" />
+        <Message content="dwdwijdwiodjw" user="nei" timestamp="12:20" />
       </div>
       <div class="chat__footer">
         <it-input></it-input>
@@ -84,9 +43,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { computed, defineComponent, onMounted, ref } from "vue";
 import Message from "../components/Message.vue";
 import Contact from "../components/Contact.vue";
+import { useStore } from "vuex";
+import { ActionTypes } from "../store/users/actions";
+import { io } from "socket.io-client";
 
 export default defineComponent({
   components: {
@@ -94,22 +56,26 @@ export default defineComponent({
     Contact,
   },
   setup() {
-    const users = ref([
-      {
-        name: "user0",
-        username: "user0",
-        avatar: "https://randomuser.me/api/portraits/med/women/76.jpg",
-      },
-      {
-        name: "user1",
-        username: "user1",
-        avatar: "https://randomuser.me/api/portraits/med/women/76.jpg",
-      },
-    ]);
+    const store = useStore();
+    const socket = io("http://localhost:5000");
+
+    socket.emit("message", {
+      sender: 1,
+      receiver: 2,
+      message: "string",
+    });
+    onMounted(() => {
+      store.dispatch(`users/${ActionTypes.getUsers}`);
+    });
+
+    const selectedUser = ref("");
+
     const drawerVisible = ref(true);
+
     return {
-      users,
+      users: computed(() => store.state.users.users),
       drawerVisible,
+      selectedUser,
     };
   },
 });
