@@ -7,7 +7,8 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class ChatService {
   constructor(
-    @InjectRepository(Message) private messageRepository: Repository<Message>,
+    @InjectRepository(Message)
+    private messageRepository: Repository<Message>,
   ) {}
 
   async addMessage(message: string, sender: User, receiver: User) {

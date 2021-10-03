@@ -9,20 +9,20 @@
       <it-input
         placeholder="Type your username here"
         v-model="name"
-        :ref="(el) => (fields.name = el)"
+        :ref="el => (fields.name = el)"
       />
 
       <it-input
         placeholder="Type your email here"
         v-model="email"
-        :ref="(el) => (fields.email = el)"
+        :ref="el => (fields.email = el)"
       />
 
       <it-input
         placeholder="Type your password here"
         v-model="password"
         type="password"
-        :ref="(el) => (fields.password = el)"
+        :ref="el => (fields.password = el)"
       />
 
       <it-button type="primary" style="margin-top:1rem" @click="login"
@@ -51,19 +51,6 @@
         </div>
       </transition>
     </div>
-
-    <it-modal v-model="error.show">
-      <template #header>
-        <h3 style="margin: 0">Error</h3>
-      </template>
-
-      <template #body>
-        <p>{{ error.message }}</p>
-      </template>
-      <template #actions>
-        <it-button type="primary" @click="error.show = false">ok</it-button>
-      </template>
-    </it-modal>
   </section>
 </template>
 <script lang="ts">
@@ -74,37 +61,36 @@ import {
   toRefs,
   ComponentPublicInstance,
   inject,
-} from "vue";
-import * as Yup from "yup";
-import api from "../api";
-import { Loading } from "../types/loading";
+} from 'vue';
+import * as Yup from 'yup';
+import api from '../api';
+import { equal } from '../equal-vue';
+import { Loading } from '../types/loading';
 
 type Fields = { [index: string]: ComponentPublicInstance };
 
 export default defineComponent({
   setup() {
-    const $loading = inject("loading") as Loading;
+    const app = equal();
+
+    const $loading = inject('loading') as Loading;
 
     const fields = ref<Fields>({});
     const loggedIn = ref(false);
-    const message = ref("");
-    let error = reactive({
-      show: false,
-      message: "",
-    });
+    const message = ref('');
 
     const loginData = reactive({
-      name: "",
-      email: "",
-      password: "",
+      name: '',
+      email: '',
+      password: '',
     });
 
     const schema = Yup.object().shape({
-      name: Yup.string().required("Username is required"),
+      name: Yup.string().required('Username is required'),
       email: Yup.string()
-        .required("Email is required")
-        .email("Must be a valid email"),
-      password: Yup.string().min(5, "Password must be at least 5 characters"),
+        .required('Email is required')
+        .email('Must be a valid email'),
+      password: Yup.string().min(5, 'Password must be at least 5 characters'),
     });
 
     const login = async () => {
@@ -113,36 +99,38 @@ export default defineComponent({
         await schema.validateSync(loginData, { abortEarly: false });
 
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        loading = $loading(document.querySelector(".login__form")!, {
+        loading = $loading(document.querySelector('.login__form')!, {
           radius: 25,
           stroke: 3,
-          color: "#0A84FF",
+          color: '#0A84FF',
         });
-        const { data } = await api.post("auth/register", loginData);
+        const { data } = await api.post('auth/register', loginData);
         message.value = data.message;
         loggedIn.value = true;
       } catch (err) {
         if (err instanceof Yup.ValidationError || err?.response?.data?.errors) {
-          Object.keys(fields.value).forEach((key) => {
+          Object.keys(fields.value).forEach(key => {
             const field = fields.value[key].$.props;
 
             const v = err.inner || err.response.data?.errors;
 
             const error = v.find(
-              (error: { path: string }) => error.path === key
+              (error: { path: string }) => error.path === key,
             );
             if (error) {
-              field.status = "danger";
+              field.status = 'danger';
               field.message = error.message || error.error;
             } else {
               field.status = undefined;
               field.message = undefined;
             }
           });
-        } else {
-          error.show = true;
-          error.message = err?.response.data?.error ?? err.message;
+          return;
         }
+        if ('response' in err)
+          return app.$Message.danger({ text: err.response.data.error });
+
+        app.$Message.danger({ text: err.message });
       } finally {
         loading?.destroy();
       }
@@ -154,7 +142,6 @@ export default defineComponent({
       fields,
       loggedIn,
       message,
-      error,
     };
   },
 });

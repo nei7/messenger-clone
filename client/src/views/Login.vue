@@ -8,13 +8,13 @@
       <it-input
         placeholder="Type your email here"
         v-model="email"
-        :ref="(el) => (fields.email = el)"
+        :ref="el => (fields.email = el)"
       />
       <it-input
         placeholder="Type your password here"
         type="password"
         v-model="password"
-        :ref="(el) => (fields.password = el)"
+        :ref="el => (fields.password = el)"
       />
       <it-button type="primary" style="margin-top:1rem" @click="login"
         >Submit</it-button
@@ -34,9 +34,9 @@
     <template #body>
       <p>
         {{
-          $route.query.ok === "false"
-            ? "Account already exist"
-            : "Account created succesfully"
+          $route.query.ok === 'false'
+            ? 'Account already exist'
+            : 'Account created succesfully'
         }}
       </p>
     </template>
@@ -48,55 +48,62 @@
   </it-modal>
 </template>
 <script lang="ts">
-import { ComponentPublicInstance, defineComponent, ref } from "vue";
-import api from "../api";
-import * as Yup from "yup";
+import { ComponentPublicInstance, defineComponent, ref } from 'vue';
+import api from '../api';
+import * as Yup from 'yup';
+import { equal } from '../equal-vue';
 
 type Fields = { [index: string]: ComponentPublicInstance };
 
 export default defineComponent({
   setup() {
+    const app = equal();
     const fields = ref<Fields>({});
 
-    const email = ref("");
-    const password = ref("");
+    const email = ref('');
+    const password = ref('');
 
     const schema = Yup.object().shape({
       email: Yup.string()
-        .required("Email is required")
-        .email("Must be a valid email"),
-      password: Yup.string().required("Password is required"),
+        .required('Email is required')
+        .email('Must be a valid email'),
+      password: Yup.string().required('Password is required'),
     });
 
     const login = async () => {
       try {
         await schema.validateSync(
           { email: email.value, password: password.value },
-          { abortEarly: false }
+          { abortEarly: false },
         );
-        api.post("auth/login", {
+        await api.post('auth/login', {
           email: email.value,
           password: password.value,
         });
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
-          Object.keys(fields.value).forEach((key) => {
+          Object.keys(fields.value).forEach(key => {
             const field = fields.value[key].$.props;
 
             const v = err.inner || err.response.data?.errors;
 
             const error = v.find(
-              (error: { path: string }) => error.path === key
+              (error: { path: string }) => error.path === key,
             );
             if (error) {
-              field.status = "danger";
+              field.status = 'danger';
               field.message = error.message || error.error;
             } else {
               field.status = undefined;
               field.message = undefined;
             }
           });
+          return;
         }
+        if ('response' in err)
+          return app.$Message.danger({ text: err.response.data.error });
+
+        app.$Message.danger({ text: err.message });
       }
     };
 

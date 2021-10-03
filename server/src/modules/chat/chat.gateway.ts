@@ -21,17 +21,21 @@ export class ChatGateway {
   server: Server;
 
   @SubscribeMessage('message')
-  handleMessage(
+  async handleMessage(
     client: Socket,
     message: { sender: User; receiver: User; message: string },
-  ): void {
+  ): Promise<void> {
     console.log(message);
-    this.chatService.addMessage(
-      message.message,
-      message.sender,
-      message.receiver,
-    );
-    this.server.to(message.receiver.toString()).emit('message', message);
+    try {
+      await this.chatService.addMessage(
+        message.message,
+        message.sender,
+        message.receiver,
+      );
+      this.server.to(message.receiver.id.toString()).emit('message', message);
+    } catch (err) {
+      client.emit('error', err);
+    }
   }
 
   @SubscribeMessage('joinRoom')

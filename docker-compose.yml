@@ -1,30 +1,26 @@
-version: "3.8"
+version: '3.8'
 
 services:
   api:
     build:
-      context: ./server
+      context: .
+      dockerfile: Dockerfile.node
     ports:
-      - "3000:3000"
+      - 3000:3000
     depends_on:
       - mysql_server
 
   client:
-    build:
-      context: ./client
-
-  nginx:
     depends_on:
       - api
-      - client
-    restart: always
     build:
-      context: ./nginx
+      context: .
+      dockerfile: Dockerfile.prod
     ports:
-      - "80:80"
+      - 8080:80
 
   mysql_server:
-    image: "mysql"
+    image: 'mysql'
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     environment:

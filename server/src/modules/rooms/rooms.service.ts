@@ -8,7 +8,8 @@ import { nanoid } from 'nanoid';
 @Injectable()
 export class RoomsService {
   constructor(
-    @InjectRepository(Room) private readonly roomRepository: Repository<Room>,
+    @InjectRepository(Room)
+    private readonly roomRepository: Repository<Room>,
   ) {}
 
   public async createRoom(name: string, owner: User) {
