@@ -52,11 +52,18 @@ import { ComponentPublicInstance, defineComponent, ref } from 'vue';
 import api from '../api';
 import * as Yup from 'yup';
 import { equal } from '../equal-vue';
+import { AxiosResponse } from 'axios';
+import { useStore } from 'vuex';
+import { MutationType } from '../store/user/mutations';
+import { useRouter } from 'vue-router';
 
 type Fields = { [index: string]: ComponentPublicInstance };
 
 export default defineComponent({
   setup() {
+    const store = useStore();
+    const router = useRouter();
+
     const app = equal();
     const fields = ref<Fields>({});
 
@@ -76,10 +83,22 @@ export default defineComponent({
           { email: email.value, password: password.value },
           { abortEarly: false },
         );
-        await api.post('auth/login', {
+
+        const { data } = await api.post<
+          unknown,
+          AxiosResponse<{
+            token: string;
+            email: string;
+            name: string;
+            id: string;
+          }>
+        >('auth/login', {
           email: email.value,
           password: password.value,
         });
+
+        store.commit(`user/${MutationType.SET_USER}`, data);
+        router.push('/app');
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
           Object.keys(fields.value).forEach(key => {

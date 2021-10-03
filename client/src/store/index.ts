@@ -1,12 +1,13 @@
-import { createStore } from "vuex";
-import rooms from "./rooms";
-import users from "./users";
+import { createStore } from 'vuex';
+
+import rooms from './rooms';
+import users from './users';
+import user from './user';
 
 export default createStore({
-  mutations: {},
-  actions: {},
   modules: {
     rooms,
+    user,
     users,
   },
 });

@@ -1,4 +1,5 @@
 import {
+  OnGatewayConnection,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -25,7 +26,6 @@ export class ChatGateway {
     client: Socket,
     message: { sender: User; receiver: User; message: string },
   ): Promise<void> {
-    console.log(message);
     try {
       await this.chatService.addMessage(
         message.message,

@@ -12,7 +12,7 @@
         <div class="divider"></div>
         <template v-for="(user, i) in users" :key="i">
           <Contact
-            lastMessage="sieam ziomek"
+            lastMessage="last message"
             :avatar="user.avater"
             :name="user.name"
           ></Contact>
@@ -22,7 +22,7 @@
     <section class="chat">
       <header>
         <it-avatar size="37px" />
-        <p>siema</p>
+        <p>user</p>
       </header>
       <div class="chat__container">
         <Message content="dwdwijdwiodjw" user="nei" timestamp="12:20" />
@@ -35,7 +35,7 @@
     <aside class="chat__details">
       <header>
         <it-avatar size="4.5rem" />
-        <p>siema</p>
+        <p>user</p>
         <span>last active 3 hours ago</span>
       </header>
     </aside>
@@ -43,12 +43,12 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from "vue";
-import Message from "../components/Message.vue";
-import Contact from "../components/Contact.vue";
-import { useStore } from "vuex";
-import { ActionTypes } from "../store/users/actions";
-import { io } from "socket.io-client";
+import { computed, defineComponent, onMounted, ref } from 'vue';
+import Message from '../components/Message.vue';
+import Contact from '../components/Contact.vue';
+import { useStore } from 'vuex';
+import { ActionTypes } from '../store/users/actions';
+import { io } from 'socket.io-client';
 
 export default defineComponent({
   components: {
@@ -57,18 +57,27 @@ export default defineComponent({
   },
   setup() {
     const store = useStore();
-    const socket = io("http://localhost:5000");
+    const socket = io('http://localhost:5000');
 
-    socket.emit("message", {
-      sender: 1,
-      receiver: 2,
-      message: "string",
+    socket.emit('message', {
+      sender: {
+        id: 1,
+        name: 'nei',
+        email: 'wdd',
+      },
+      receiver: {
+        id: 1,
+        name: 'nobody',
+        email: 'wdd',
+      },
+      message: 'string',
     });
+
     onMounted(() => {
       store.dispatch(`users/${ActionTypes.getUsers}`);
     });
 
-    const selectedUser = ref("");
+    const selectedUser = ref('');
 
     const drawerVisible = ref(true);
 
@@ -107,7 +116,7 @@ header h3 {
   background-color: white;
   height: 100vh;
   transition: all 0.18s;
-  border-left: 1px solid #e1e1e2;
+  border-left: 1px solid #f2f3f7;
 }
 
 .chat__details header {
