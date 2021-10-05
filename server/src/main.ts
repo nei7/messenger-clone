@@ -9,6 +9,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 dotenv.config();
 
 async function bootstrap() {
@@ -29,6 +30,15 @@ async function bootstrap() {
   );
   app.enableCors();
 
+  const options = new DocumentBuilder()
+    .setTitle('messenger-clone API')
+    .setDescription('messenger clone API')
+    .setVersion('1.0.0')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, options);
+
+  SwaggerModule.setup('api', app, document);
   await app.listen(3000);
 }
 bootstrap();

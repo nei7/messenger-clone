@@ -12,7 +12,7 @@
         <div class="divider"></div>
         <template v-for="(user, i) in users" :key="i">
           <Contact
-            lastMessage="last message"
+            :lastMessage="user.lastMessage"
             :avatar="user.avater"
             :name="user.name"
           ></Contact>

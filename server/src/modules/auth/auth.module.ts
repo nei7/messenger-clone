@@ -9,6 +9,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.stategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MailService } from 'src/modules/mailer/mailer.service';
+import { Message } from 'src/entities/message.entity';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { MailService } from 'src/modules/mailer/mailer.service';
       inject: [ConfigService],
     }),
     ConfigModule,
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Message]),
   ],
   providers: [AuthService, UserService, MailService, JwtStrategy],
   controllers: [AuthController],

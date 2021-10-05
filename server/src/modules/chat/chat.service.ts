@@ -18,4 +18,15 @@ export class ChatService {
       content: message,
     });
   }
+
+  async getMessages(from: number, to: number) {
+    return this.messageRepository.find({
+      sender: {
+        id: from,
+      },
+      receiver: {
+        id: to,
+      },
+    });
+  }
 }
