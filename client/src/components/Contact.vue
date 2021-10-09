@@ -1,10 +1,14 @@
 <template>
   <div class="contact">
-    <it-avatar :src="avatar" size="40px" color="#0a84ff" />
+    <it-avatar
+      :src="`https://avatars.dicebear.com/api/${avatar}`"
+      size="40px"
+      color=""
+    />
     <div class="contact__info">
       <p class="name">{{ name }}</p>
       <p class="last__message">
-        {{ lastMessage }}
+        {{ lastMessage || 'no recent messages' }}
       </p>
     </div>
     <p class="timestamp">
@@ -14,7 +18,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent } from 'vue';
 
 export default defineComponent({
   props: {
@@ -36,6 +40,7 @@ export default defineComponent({
 
 <style scoped>
 .contact {
+  margin: 1rem 0rem 1rem 0rem;
   padding: 0.8rem 0.5rem;
   border-radius: 0.6rem;
   display: flex;
@@ -59,15 +64,14 @@ export default defineComponent({
   margin: 0px;
 }
 .name {
-  text-shadow: 0px 4px 17px rgba(0, 0, 0, 0.13);
-  opacity: 0.9;
-  font-weight: 400;
-  font-size: 0.96rem;
-  margin-bottom: 5px;
+  color: black;
+  font-size: 0.9rem;
+  opacity: 0.7;
+  margin-bottom: 1px;
 }
 .last__message {
   font-size: 13px;
-  font-weight: 400;
+  font-weight: 300;
   opacity: 0.6;
 }
 .timestamp {

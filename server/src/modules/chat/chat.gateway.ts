@@ -23,15 +23,15 @@ export class ChatGateway {
   @SubscribeMessage('message')
   async handleMessage(
     client: Socket,
-    message: { sender: User; receiver: User; message: string },
+    message: { senderId: number; receiverId: number; message: string },
   ): Promise<void> {
     try {
       await this.chatService.addMessage(
         message.message,
-        message.sender,
-        message.receiver,
+        message.senderId,
+        message.receiverId,
       );
-      this.server.to(message.receiver.id.toString()).emit('message', message);
+      this.server.to(message.receiverId.toString()).emit('message', message);
     } catch (err) {
       client.emit('error', err);
     }

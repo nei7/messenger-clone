@@ -13,12 +13,33 @@ export class UserService {
     private readonly messageRepository: Repository<Message>,
   ) {}
 
+  async getMessages(id: number, userid: number) {
+    return this.messageRepository.find({
+      where: [
+        {
+          receiver: {
+            id: userid,
+          },
+        },
+        {
+          receiver: {
+            id,
+          },
+        },
+      ],
+      relations: ['receiver', 'sender'],
+    });
+  }
+
   async createUser(data: {
     name: string;
     email: string;
     password: string;
   }): Promise<User> {
-    const user = await this.userRepository.save(data);
+    const user = await this.userRepository.save({
+      ...data,
+      avatar: `initials/${data.name}.svg`,
+    });
     delete user.password;
 
     return user;
@@ -38,22 +59,39 @@ export class UserService {
     });
   }
 
-  async getUsersLastMessage() {
-    // select messages.* from messages,users where sentAt in (select MAX(sentAt) from messages where senderId = users.id)
-    const subQuery = getConnection()
+  async getUsersWithLastMessage(id: string) {
+    const sbQuery = getConnection()
       .createQueryBuilder()
-      .select('MAX(sentAt)')
+      .select(['senderId', 'max(sentAt) as sentAt'])
       .from(Message, 'messages')
-      .where('senderId = users.id');
+      .where(`messages.receiverId = ${id}`)
+      .groupBy('senderId');
+
+    const anthSbQuery = getConnection()
+      .createQueryBuilder()
+      .select('*')
+      .from(Message, 'messages');
 
     const users = getConnection()
       .createQueryBuilder()
-      .select(
-        'messages.content as lastMessage, users.name, users.id, users.email',
-      )
-      .from(Message, 'messages')
+      .select([
+        'users.name as name',
+        'users.email as email',
+        'users.id as id',
+        'users.avatar as avatar',
+        'messages.content as lastMessage',
+      ])
       .from(User, 'users')
-      .where(`sentAt IN (${subQuery.getQuery()})`);
+      .leftJoin(
+        `(${sbQuery.getQuery()})`,
+        'last_messages',
+        'last_messages.senderId = users.id ',
+      )
+      .leftJoin(
+        `(${anthSbQuery.getQuery()})`,
+        'messages',
+        'messages.sentAt = last_messages.sentAt',
+      );
 
     return users.execute();
   }

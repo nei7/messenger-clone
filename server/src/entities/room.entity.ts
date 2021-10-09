@@ -13,9 +13,7 @@ export class Room {
   @Column({ unique: true, nullable: false })
   name: string;
 
-  @ManyToOne(() => User, (user) => user.id, {
-    cascade: true,
-  })
+  @ManyToOne(() => User, (user) => user.id)
   creator: User;
 
   @Column({

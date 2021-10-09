@@ -1,6 +1,5 @@
 import { Exclude } from 'class-transformer';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-
+import { AfterInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 @Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn()
@@ -12,7 +11,15 @@ export class User {
   @Column({ unique: true })
   email: string;
 
+  @Column({ nullable: false })
   @Exclude()
-  @Column()
   password: string;
+
+  @Column({ default: '' })
+  avatar: string;
+
+  @AfterInsert()
+  setAvatar() {
+    this.avatar = `initials/${this.name}.svg`;
+  }
 }

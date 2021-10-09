@@ -6,7 +6,6 @@ import {
   Post,
   Query,
   Request,
-  Res,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
@@ -14,7 +13,6 @@ import { MailService } from 'src/modules/mailer/mailer.service';
 import { UserService } from 'src/modules/user/user.service';
 import { AuthService } from './auth.service';
 import * as jwt from 'jsonwebtoken';
-import { Response } from 'express';
 import { RegisterDto } from './dto/register.dto';
 @Controller('auth')
 export class AuthController {
@@ -65,11 +63,7 @@ export class AuthController {
   }
 
   @Get('confirm-email')
-  async confirm(
-    @Query('token') token: string,
-    @Res() res: Response,
-    @Request() req,
-  ) {
+  async confirm(@Query('token') token: string) {
     try {
       const { name, email, password } = (await jwt.verify(
         token,
@@ -84,13 +78,9 @@ export class AuthController {
         password: hashedPassword,
       });
 
-      return res.redirect(
-        `http://${req.headers.host.split(':')[0]}:8080/login?ok=true`,
-      );
+      return 'sucess!';
     } catch (err) {
-      return res.redirect(
-        `http://${req.headers.host.split(':')[0]}:8080/login?ok=false`,
-      );
+      return err.message;
     }
   }
 }

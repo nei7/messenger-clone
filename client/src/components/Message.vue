@@ -1,6 +1,10 @@
 <template>
-  <div class="message" :class="direction === 'right' ? 'right' : null">
-    <it-avatar color="#0a84ff" size="32px" />
+  <div class="message" :class="mine ? 'mine' : null">
+    <it-avatar
+      color="#0a84ff"
+      size="32px"
+      :src="`https://avatars.dicebear.com/api/${avatar}`"
+    />
     <div>
       <p>
         {{ user }} <span>{{ timestamp }}</span>
@@ -24,11 +28,11 @@
   display: flex;
   align-items: center;
 }
-.right > .it-avatar {
+.mine > .it-avatar {
   display: none;
 }
 
-.right > div > p {
+.mine > div > p {
   text-align: end;
 }
 
@@ -65,39 +69,40 @@
   opacity: 0.5;
   float: right;
 }
-.right {
+.mine {
   align-self: flex-end;
 }
-.right > div {
+.mine > div {
   direction: rtl;
 }
 
-.right .card {
+.mine .card {
   color: white;
   align-self: flex-end;
   background-color: rgb(0, 132, 255);
+  box-shadow: 0 2px 4px rgb(48 81 255 / 40%);
   -webkit-box-shadow: 5px 5px 26px -18px rgba(0, 0, 0, 0.31);
   box-shadow: 5px 5px 26px -18px rgba(0, 0, 0, 0.31);
   border-radius: 10px 0px 10px 10px;
 }
-.right > div > p {
+.mine > div > p {
   display: none;
 }
 
-.right .card p {
+.mine .card p {
   opacity: 1;
   font-weight: 500 !important;
 }
 </style>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent } from 'vue';
 
 export default defineComponent({
   props: {
-    direction: {
-      type: String,
-      validator: (val: string) => ["right", "left"].includes(val),
+    mine: {
+      type: Boolean,
+      default: false,
     },
     content: {
       type: String,
@@ -108,6 +113,9 @@ export default defineComponent({
       type: String,
     },
     user: {
+      type: String,
+    },
+    avatar: {
       type: String,
     },
   },

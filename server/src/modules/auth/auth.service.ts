@@ -13,7 +13,6 @@ export class AuthService {
     const user = await this.userService.findOne({
       email,
     });
-
     if (!user) throw new BadRequestException('Invalid email');
     if (!(await bcrypt.compare(password, user.password)))
       throw new BadRequestException('Invalid password');

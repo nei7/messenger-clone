@@ -26,26 +26,6 @@
       >
     </div>
   </section>
-  <it-modal v-model="$route.query.ok">
-    <template #header>
-      <h3 style="margin: 0">Info</h3>
-    </template>
-
-    <template #body>
-      <p>
-        {{
-          $route.query.ok === 'false'
-            ? 'Account already exist'
-            : 'Account created succesfully'
-        }}
-      </p>
-    </template>
-    <template #actions>
-      <it-button type="primary" @click="$router.replace({ ok: null })"
-        >Got it</it-button
-      >
-    </template>
-  </it-modal>
 </template>
 <script lang="ts">
 import { ComponentPublicInstance, defineComponent, ref } from 'vue';
@@ -98,7 +78,10 @@ export default defineComponent({
         });
 
         store.commit(`user/${MutationType.SET_USER}`, data);
-        router.push('/app');
+        api.defaults.headers = {
+          authorization: 'Bearer ' + data.token,
+        };
+        router.push('/chat');
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
           Object.keys(fields.value).forEach(key => {
@@ -119,9 +102,10 @@ export default defineComponent({
           });
           return;
         }
-        if ('response' in err)
-          return app.$Message.danger({ text: err.response.data.error });
-
+        if ('response' in err) {
+          const res = err.response.data;
+          return app.$Message.danger({ text: res.error || res.message });
+        }
         app.$Message.danger({ text: err.message });
       }
     };
@@ -154,7 +138,6 @@ export default defineComponent({
 }
 .login__form .header {
   padding: 1rem;
-  margin-bottom: 1.5rem;
 }
 
 .login__form p,

@@ -9,6 +9,7 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 
 import { UserService } from '../user/user.service';
@@ -22,6 +23,7 @@ export class RoomsController {
     private readonly userService: UserService,
   ) {}
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post('/create')
   async createRoom(@Body() { name }: RoomDto, @Request() req) {
@@ -40,6 +42,7 @@ export class RoomsController {
     return await this.roomService.getRoom('nanoid', id);
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Delete('/:id')
   async deleteRoom(@Param('id') id: string, @Request() req) {

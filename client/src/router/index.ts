@@ -1,27 +1,27 @@
-import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
-import Register from "../views/Register.vue";
-import Login from "../views/Login.vue";
-import App from "../views/Main.vue";
+import Register from '../views/Register.vue';
+import Login from '../views/Login.vue';
+import App from '../views/Main.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
-    path: "/",
-    redirect: "/login",
+    path: '/',
+    redirect: '/login',
   },
   {
-    path: "/register",
-    name: "Register",
+    path: '/register',
+    name: 'Register',
     component: Register,
   },
   {
-    path: "/login",
-    name: "Login",
+    path: '/login',
+    name: 'Login',
     component: Login,
   },
   {
-    path: "/app",
-    name: "App",
+    path: '/chat/:userid?',
+    name: 'Chat',
     component: App,
   },
 ];

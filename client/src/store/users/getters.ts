@@ -1,9 +1,13 @@
-import { GetterTree } from "vuex";
-import { State } from "./state";
+import { GetterTree } from 'vuex';
+import { State } from './state';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type Getters = {};
+export enum GettersType {
+  getUserMessages = 'getUserMessages',
+}
 
-const getters: GetterTree<State, State> & Getters = {};
+const getters: GetterTree<State, State> = {
+  [GettersType.getUserMessages]: (state: State) => (id: number) =>
+    state.messages.get(id),
+};
 
 export default getters;

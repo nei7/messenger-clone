@@ -34,11 +34,12 @@ async function bootstrap() {
     .setTitle('messenger-clone API')
     .setDescription('messenger clone API')
     .setVersion('1.0.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, options);
 
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('docs', app, document);
   await app.listen(3000);
 }
 bootstrap();

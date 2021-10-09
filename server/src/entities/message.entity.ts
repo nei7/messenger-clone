@@ -6,11 +6,15 @@ export class Message {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, (user) => user.id)
-  sender: Omit<User, 'password' | 'email'>;
+  @ManyToOne(() => User, (user) => user.id, {
+    onDelete: 'CASCADE',
+  })
+  sender: User;
 
-  @ManyToOne(() => User, (user) => user.id)
-  receiver: Omit<User, 'password' | 'email'>;
+  @ManyToOne(() => User, (user) => user.id, {
+    onDelete: 'CASCADE',
+  })
+  receiver: User;
 
   @Column({ nullable: false })
   content: string;
