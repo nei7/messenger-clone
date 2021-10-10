@@ -1,5 +1,11 @@
-import { Exclude } from 'class-transformer';
-import { AfterInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  AfterInsert,
+  Column,
+  Entity,
+  FindConditions,
+  PrimaryGeneratedColumn,
+  Repository,
+} from 'typeorm';
 @Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn()
@@ -11,8 +17,7 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column({ nullable: false })
-  @Exclude()
+  @Column({ nullable: false, select: false })
   password: string;
 
   @Column({ default: '' })

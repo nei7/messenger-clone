@@ -5,5 +5,5 @@ export interface IMessage {
   content: string;
   sender: IUser;
   reciever: IUser;
-  sentAt: Date;
+  sentAt: string;
 }

@@ -109,7 +109,6 @@ export default defineComponent({
       required: true,
     },
     timestamp: {
-      required: true,
       type: String,
     },
     user: {

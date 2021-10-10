@@ -3,20 +3,25 @@
     <header>
       <it-avatar
         size="37px"
-        :src="`https://avatars.dicebear.com/api/${data.avatar}`"
+        :src="`https://avatars.dicebear.com/api/${user.data.avatar}`"
       />
-      <p>{{ data.name }}</p>
+      <p>{{ user.data.name }}</p>
     </header>
     <div class="chat__container">
-      <Message
-        v-for="message in messages"
-        :key="message.id"
-        :content="message.content"
-        :user="message.sender.name"
-        :timestamp="message.sentAt"
-        :avatar="message.sender.avatar"
-        :mine="message.sender.id != data.id"
-      />
+      <template
+        v-for="(messages, timestamp) in sortMessages(user.messages)"
+        :key="timestamp"
+      >
+        <h4>{{ timestamp }}</h4>
+        <Message
+          v-for="message in messages"
+          :key="message.id"
+          :content="message.content"
+          :user="message.sender.name"
+          :avatar="message.sender.avatar"
+          :mine="message.sender.id != user.data.id"
+        />
+      </template>
     </div>
     <div class="chat__footer">
       <it-input placeholder="Write sth..." />
@@ -26,13 +31,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, toRefs, watch } from 'vue';
+import { defineComponent, reactive, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 import Message from '../components/Message.vue';
 import { IUser } from '../types/rooms';
 import { GettersType } from '../store/users/getters';
 import { IMessage } from '../types';
+import { sortMessages } from '../../utils';
 
 export default defineComponent({
   components: {
@@ -66,14 +72,15 @@ export default defineComponent({
     );
 
     return {
-      ...toRefs(user),
+      user,
+      sortMessages,
     };
   },
 });
 </script>
 
 <style scoped>
-.chat > .chat__container {
+.chat__container {
   padding: 1rem;
   display: flex;
   flex-direction: column;
@@ -82,8 +89,15 @@ export default defineComponent({
   height: 100%;
   box-sizing: border-box;
   background-color: #f9fafb;
-  overflow-y: auto;
+  overflow-y: scroll;
 }
+.chat__container h4 {
+  margin: 0.7rem auto;
+  font-weight: 500;
+  opacity: 0.4;
+  font-size: 13px;
+}
+
 .chat {
   width: 100%;
   height: 100%;
