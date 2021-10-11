@@ -1,16 +1,29 @@
-import { Controller, Get, Param, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
+import { ChatGateway } from './chat.gateway';
 import { ChatService } from './chat.service';
+import { MessageDto } from './dto/message.dto';
 
 @Controller('chat')
 export class ChatController {
-  constructor(private readonly chatService: ChatService) {}
+  constructor(
+    private readonly chatService: ChatService,
+    private chatGateway: ChatGateway,
+  ) {}
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Get(':id')
-  async getMessages(@Param('id') id: string, @Request() req) {
-    return this.chatService.getMessages(parseInt(id), req.user.id);
+  @Post('send')
+  async getMessages(@Request() req, @Body() message: MessageDto) {
+    const msg = await this.chatService.addMessage(
+      message.content,
+      req.user.id,
+      message.recieverId,
+    );
+    this.chatGateway.server
+      .to(message.recieverId.toString())
+      .emit('message', msg);
+    return msg;
   }
 }

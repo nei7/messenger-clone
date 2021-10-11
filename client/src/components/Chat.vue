@@ -7,7 +7,7 @@
       />
       <p>{{ user.data.name }}</p>
     </header>
-    <div class="chat__container">
+    <div class="chat__container" ref="chat">
       <template
         v-for="(messages, timestamp) in sortMessages(user.messages)"
         :key="timestamp"
@@ -19,34 +19,40 @@
           :content="message.content"
           :user="message.sender.name"
           :avatar="message.sender.avatar"
-          :mine="message.sender.id != user.data.id"
+          :timestamp="timestamp === 'Today' && message.sentAt"
+          :mine="message.sender.id === $store.state.user.id"
         />
       </template>
     </div>
     <div class="chat__footer">
-      <it-input placeholder="Write sth..." />
-      <it-button type="primary">send</it-button>
+      <it-input placeholder="Write sth..." v-model="message" />
+      <it-button type="primary" @click="sendMessage">send</it-button>
     </div>
   </section>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, watch } from 'vue';
+import { defineComponent, reactive, watch, ref, nextTick } from 'vue';
 import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 import Message from '../components/Message.vue';
 import { IUser } from '../types/rooms';
 import { GettersType } from '../store/users/getters';
 import { IMessage } from '../types';
-import { sortMessages } from '../../utils';
+import { sortMessages } from '../utils';
+import api from '../api';
+import { MutationType } from '../store/users/mutations';
 
 export default defineComponent({
   components: {
     Message,
   },
   setup() {
-    const { state, getters } = useStore();
+    const { state, getters, commit } = useStore();
     const route = useRoute();
+    const chat = ref<HTMLElement>();
+    const message = ref('');
+
     const user = reactive<{
       data: IUser;
       messages: IMessage[];
@@ -67,13 +73,37 @@ export default defineComponent({
           user.messages = getters[`users/${GettersType.getUserMessages}`](
             parseInt(route.params.userid as string),
           );
+          nextTick(() =>
+            chat.value!.scrollTo({
+              top: chat.value!.scrollHeight,
+            }),
+          );
         }
       },
     );
 
+    const sendMessage = () => {
+      const userid = parseInt(route.params.userid as string);
+      api
+        .post('/chat/send', {
+          content: message.value,
+          recieverId: userid,
+        })
+        .then(({ data }) => {
+          message.value = '';
+          commit(`users/${MutationType.SET_USER_MESSAGE}`, {
+            userid,
+            message: data,
+          });
+        });
+    };
+
     return {
       user,
       sortMessages,
+      chat,
+      message,
+      sendMessage,
     };
   },
 });

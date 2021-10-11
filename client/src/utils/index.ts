@@ -1,4 +1,4 @@
-import { IMessage } from '../src/types';
+import { IMessage } from '../types';
 
 type DateJSON = {
   year: number;
@@ -15,7 +15,7 @@ export function parseDate(date: string): DateJSON {
   return {
     year: dt.getFullYear(),
     month: dt.getMonth(),
-    day: dt.getDay(),
+    day: dt.getDate(),
     hour: dt.getHours(),
     minutes: dt.getMinutes(),
     seconds: dt.getSeconds(),
@@ -35,6 +35,16 @@ export function parseDate(date: string): DateJSON {
         'December',
       ];
 
+      const today = new Date();
+
+      if (
+        today.getFullYear() === this.year &&
+        today.getMonth() === this.month &&
+        today.getDate() === this.day
+      ) {
+        return 'Today';
+      }
+
       return `${this.day} ${months[this.month]} ${this.year} `;
     },
   };
@@ -42,18 +52,21 @@ export function parseDate(date: string): DateJSON {
 
 export function sortMessages(
   messages: IMessage[],
-): { [n: string]: IMessage[] } {
+): { [n: string]: IMessage[] } | null {
   const arr: { [n: string]: IMessage[] } = {};
+  if (messages) {
+    messages.forEach(msg => {
+      const date = parseDate(msg.sentAt);
 
-  messages.forEach(msg => {
-    const date = parseDate(msg.sentAt);
+      if (date.formatted() in arr) {
+        arr[date.formatted()].push(msg);
+        return;
+      }
 
-    if (date.formatted() in arr) {
-      arr[date.formatted()].push(msg);
-      return;
-    }
-    arr[date.formatted()] = [msg];
-  });
+      arr[date.formatted()] = [msg];
+    });
 
-  return arr;
+    return arr;
+  }
+  return null;
 }

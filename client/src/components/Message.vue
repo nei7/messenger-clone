@@ -7,7 +7,8 @@
     />
     <div>
       <p>
-        {{ user }} <span>{{ timestamp }}</span>
+        {{ user }}
+        <span>{{ parseTimeStamp() }}</span>
       </p>
       <div class="card">
         <p>{{ content }}</p>
@@ -97,6 +98,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { parseDate } from '../utils';
 
 export default defineComponent({
   props: {
@@ -117,6 +119,21 @@ export default defineComponent({
     avatar: {
       type: String,
     },
+  },
+  // eslint-disable-next-line vue/no-setup-props-destructure
+  setup({ timestamp }) {
+    const parseTimeStamp = (): string | undefined => {
+      if (timestamp) {
+        const { hour, minutes } = parseDate(timestamp);
+
+        return `${hour}:${minutes}`;
+      }
+    };
+
+    return {
+      parseDate,
+      parseTimeStamp,
+    };
   },
 });
 </script>

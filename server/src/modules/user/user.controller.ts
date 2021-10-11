@@ -3,11 +3,12 @@ import {
   Get,
   Header,
   Param,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { UserService } from './user.service';
 
 @Controller('users')
@@ -22,10 +23,28 @@ export class UserController {
     return this.userService.getUsersWithLastMessage(req.user.id);
   }
 
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'skip',
+    required: false,
+  })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('/:id/messages')
-  async getUserMessages(@Request() req, @Param('id') id: string) {
-    return this.userService.getMessages(req.user.id, parseInt(id));
+  async getUserMessages(
+    @Request() req,
+    @Param('id') id: string,
+    @Query('limit') limit: string,
+    @Query('skip') skip: string,
+  ) {
+    return this.userService.getMessages(
+      req.user.id,
+      parseInt(id),
+      parseInt(limit) || 0,
+      parseInt(skip) || 50,
+    );
   }
 }

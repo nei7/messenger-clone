@@ -8,7 +8,7 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { MailService } from 'src/modules/mailer/mailer.service';
 import { UserService } from 'src/modules/user/user.service';
 import { AuthService } from './auth.service';

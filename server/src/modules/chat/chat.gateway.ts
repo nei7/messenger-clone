@@ -5,9 +5,10 @@ import {
 } from '@nestjs/websockets';
 
 import { Server, Socket } from 'socket.io';
-import { User } from 'src/entities/user.entity';
 import { ChatService } from './chat.service';
-
+import * as jwt from 'jsonwebtoken';
+import { UserService } from '../user/user.service';
+import { User } from 'src/entities/user.entity';
 @WebSocketGateway(5000, {
   cors: {
     origin: '*',
@@ -15,37 +16,31 @@ import { ChatService } from './chat.service';
   },
 })
 export class ChatGateway {
-  constructor(private chatService: ChatService) {}
+  constructor(
+    private chatService: ChatService,
+    private userService: UserService,
+  ) {}
 
   @WebSocketServer()
   server: Server;
 
-  @SubscribeMessage('message')
-  async handleMessage(
-    client: Socket,
-    message: { senderId: number; receiverId: number; message: string },
-  ): Promise<void> {
+  @SubscribeMessage('authenticate')
+  async authenticate(client: Socket, token: string) {
     try {
-      await this.chatService.addMessage(
-        message.message,
-        message.senderId,
-        message.receiverId,
-      );
-      this.server.to(message.receiverId.toString()).emit('message', message);
+      const user = jwt.verify(token, process.env.JWT_SECRET) as jwt.JwtPayload &
+        User;
+      delete user.iat;
+      if (await this.userService.findOne(user)) {
+        client.join(user.id.toString());
+        client.emit('success');
+      } else
+        client.emit('error', {
+          error: 'Invalid token',
+        });
     } catch (err) {
-      client.emit('error', err);
+      client.emit('error', {
+        error: err.message,
+      });
     }
-  }
-
-  @SubscribeMessage('joinRoom')
-  handleJoin(client: Socket, room: string) {
-    client.join(room);
-    client.emit('joinedRoom', room);
-  }
-
-  @SubscribeMessage('leaveRoom')
-  handleLeave(client: Socket, room: string) {
-    client.leave(room);
-    client.emit('leftRoom', room);
   }
 }

@@ -28,7 +28,7 @@
   </section>
 </template>
 <script lang="ts">
-import { ComponentPublicInstance, defineComponent, ref } from 'vue';
+import { ComponentPublicInstance, defineComponent, ref, inject } from 'vue';
 import api from '../api';
 import * as Yup from 'yup';
 import { equal } from '../equal-vue';
@@ -36,6 +36,7 @@ import { AxiosResponse } from 'axios';
 import { useStore } from 'vuex';
 import { MutationType } from '../store/user/mutations';
 import { useRouter } from 'vue-router';
+import { Socket } from 'socket.io-client';
 
 type Fields = { [index: string]: ComponentPublicInstance };
 
@@ -49,6 +50,8 @@ export default defineComponent({
 
     const email = ref('');
     const password = ref('');
+
+    const socket = inject('socket') as Socket;
 
     const schema = Yup.object().shape({
       email: Yup.string()
@@ -81,6 +84,9 @@ export default defineComponent({
         api.defaults.headers = {
           authorization: 'Bearer ' + data.token,
         };
+
+        socket.emit('authenticate', data.token);
+
         router.push('/chat');
       } catch (err) {
         if (err instanceof Yup.ValidationError) {

@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Message } from 'src/entities/message.entity';
 import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
+import { ChatGateway } from './chat.gateway';
 
 @Injectable()
 export class ChatService {
@@ -11,7 +12,7 @@ export class ChatService {
     private messageRepository: Repository<Message>,
   ) {}
 
-  async addMessage(message: string, senderId: number, receiverId: number) {
+  addMessage(message: string, senderId: number, receiverId: number) {
     return this.messageRepository.save({
       sender: {
         id: senderId,
@@ -20,17 +21,6 @@ export class ChatService {
         id: receiverId,
       },
       content: message,
-    });
-  }
-
-  async getMessages(from: number, to: number) {
-    return this.messageRepository.find({
-      sender: {
-        id: from,
-      },
-      receiver: {
-        id: to,
-      },
     });
   }
 }

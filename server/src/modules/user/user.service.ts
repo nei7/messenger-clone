@@ -13,17 +13,25 @@ export class UserService {
     private readonly messageRepository: Repository<Message>,
   ) {}
 
-  async getMessages(id: number, userid: number) {
+  async getMessages(id: number, userid: number, skip = 0, limit = 50) {
     return this.messageRepository.find({
+      skip,
+      take: limit,
       where: [
         {
           receiver: {
             id: userid,
           },
+          sender: {
+            id,
+          },
         },
         {
           receiver: {
             id,
+          },
+          sender: {
+            id: userid,
           },
         },
       ],
