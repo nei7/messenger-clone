@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   Post,
   Query,
   Request,
@@ -45,6 +46,7 @@ export class AuthController {
     return { message: 'Verification message has been sent to ' + email };
   }
 
+  @HttpCode(200)
   @Post('/login')
   async login(
     @Body('email') email: string,
@@ -78,7 +80,7 @@ export class AuthController {
         password: hashedPassword,
       });
 
-      return 'sucess!';
+      return 'success!';
     } catch (err) {
       return err.message;
     }

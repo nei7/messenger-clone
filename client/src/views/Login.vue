@@ -37,6 +37,7 @@ import { useStore } from 'vuex';
 import { MutationType } from '../store/user/mutations';
 import { useRouter } from 'vue-router';
 import { Socket } from 'socket.io-client';
+import { ActionTypes } from '../store/users/actions';
 
 type Fields = { [index: string]: ComponentPublicInstance };
 
@@ -87,7 +88,11 @@ export default defineComponent({
 
         socket.emit('authenticate', data.token);
 
-        router.push('/chat');
+        store
+          .dispatch(`users/${ActionTypes.getUserMessages}`, data.id)
+          .then(() => {
+            router.push('/chat/' + data.id);
+          });
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
           Object.keys(fields.value).forEach(key => {

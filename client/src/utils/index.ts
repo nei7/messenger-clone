@@ -52,9 +52,18 @@ export function parseDate(date: string): DateJSON {
 
 export function sortMessages(
   messages: IMessage[],
+  unread?: number,
 ): { [n: string]: IMessage[] } | [] {
   const arr: { [n: string]: IMessage[] } = {};
+
+  let unreadArr: IMessage[] = [];
+
   if (messages) {
+    if (unread && unread > 0) {
+      unreadArr = messages.slice(messages.length - unread, messages.length);
+      messages = messages.slice(0, messages.length - unread);
+    }
+
     messages.forEach(msg => {
       const date = parseDate(msg.sentAt);
 
@@ -65,6 +74,10 @@ export function sortMessages(
 
       arr[date.formatted()] = [msg];
     });
+
+    if (unreadArr.length > 0) {
+      arr['Unread Mesages'] = unreadArr;
+    }
 
     return arr;
   }

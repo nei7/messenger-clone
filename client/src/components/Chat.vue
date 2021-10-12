@@ -1,15 +1,18 @@
 <template>
   <section class="chat">
-    <header>
+    <header v-if="user">
       <it-avatar
         size="37px"
-        :src="`https://avatars.dicebear.com/api/${user.data.avatar}`"
+        :src="`https://avatars.dicebear.com/api/${user.avatar}`"
       />
-      <p>{{ user.data.name }}</p>
+      <p>{{ user.name }}</p>
     </header>
     <div class="chat__container" ref="chat">
       <template
-        v-for="(msgs, timestamp) in sortMessages(messages)"
+        v-for="(msgs, timestamp) in sortMessages(
+          messages,
+          user?.unreadMessages,
+        )"
         :key="timestamp"
       >
         <h4>{{ timestamp }}</h4>
@@ -19,7 +22,7 @@
           :content="message.content"
           :user="message.sender.name"
           :avatar="message.sender.avatar"
-          :timestamp="timestamp === 'Today' && message.sentAt"
+          :timestamp="timestamp === 'Today' ? message.sentAt : null"
           :mine="message.sender.id === $store.state.user.id"
         />
       </template>
@@ -36,7 +39,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, watch, ref, nextTick, computed } from 'vue';
+import { defineComponent, watch, ref, nextTick, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 import Message from '../components/Message.vue';
@@ -59,12 +62,11 @@ export default defineComponent({
     const message = ref('');
     const app = equal();
 
-    const user = reactive<{
-      data: IUser;
-    }>({
-      data: {} as IUser,
-    });
-
+    const user = computed(() =>
+      (state.users.users as IUser[]).find(
+        user => user.id === parseInt(route.params.userid as string),
+      ),
+    );
     const messages = computed<IMessage[]>(() =>
       getters[`users/${GettersType.getUserMessages}`](
         parseInt(route.params.userid as string),
@@ -75,7 +77,6 @@ export default defineComponent({
       () => messages.value.length,
       () => {
         const { scrollHeight, scrollTop, clientHeight } = chat.value!;
-
         if (scrollHeight - 50 < scrollTop + clientHeight) {
           nextTick(() =>
             chat.value!.scrollTo({
@@ -89,13 +90,7 @@ export default defineComponent({
     watch(
       () => route.params.userid,
       () => {
-        if (route.params.userid) {
-          const data = (state.users.users as IUser[]).find(
-            user => user.id === parseInt(route.params.userid as string),
-          );
-          if (!data) return;
-          user.data = data;
-
+        if (user.value) {
           nextTick(() =>
             chat.value!.scrollTo({
               top: chat.value!.scrollHeight,
@@ -106,18 +101,23 @@ export default defineComponent({
     );
 
     const sendMessage = () => {
-      const userid = parseInt(route.params.userid as string);
       api
         .post('/chat/send', {
           content: message.value,
-          recieverId: userid,
+          recieverId: user.value?.id,
         })
         .then(({ data }) => {
           message.value = '';
           commit(`users/${MutationType.SET_USER_MESSAGE}`, {
-            userid,
+            receiverId: user.value?.id,
+            senderId: state.user.id,
             message: data,
           });
+          nextTick(() =>
+            chat.value!.scrollTo({
+              top: chat.value!.scrollHeight,
+            }),
+          );
         })
         .catch(err => {
           app.$Message.danger({

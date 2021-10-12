@@ -15,6 +15,8 @@
           :avatar="user.avatar"
           :name="user.name"
           :userid="user.id"
+          :unreadMessages="user.unreadMessages"
+          :lastMessageDate="user.lastMessageDate"
         ></Contact>
       </template>
     </div>
@@ -27,6 +29,7 @@ import Contact from '../components/Contact.vue';
 import { useStore } from 'vuex';
 import { ActionTypes } from '../store/users/actions';
 import { useRouter } from 'vue-router';
+import { IUser } from '../types/rooms';
 
 export default defineComponent({
   components: {
@@ -44,8 +47,24 @@ export default defineComponent({
       });
     };
 
+    const users = computed(() => {
+      return (store.state.users.users as IUser[]).sort((a, b) => {
+        if (!a.unreadMessages || !b.unreadMessages) {
+          return 0;
+        }
+
+        if (a.unreadMessages < b.unreadMessages) {
+          return -1;
+        }
+        if (a.unreadMessages > b.unreadMessages) {
+          return 1;
+        }
+        return 0;
+      });
+    });
+
     return {
-      users: computed(() => store.state.users.users),
+      users,
       getMessages,
     };
   },
@@ -66,5 +85,10 @@ export default defineComponent({
 .contacts header {
   display: flex;
   padding: 1rem 1rem 0rem;
+}
+
+.contacts h3 {
+  font-weight: 400;
+  font-size: 16px;
 }
 </style>

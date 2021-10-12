@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Message } from 'src/entities/message.entity';
 import { User } from 'src/entities/user.entity';
 import { Repository } from 'typeorm';
-import { ChatGateway } from './chat.gateway';
 
 @Injectable()
 export class ChatService {

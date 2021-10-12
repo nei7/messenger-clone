@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
+import chatGuard from './guards/chat';
 
 import Register from '../views/Register.vue';
 import Login from '../views/Login.vue';
@@ -30,5 +31,7 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
 });
+
+chatGuard(router);
 
 export default router;

@@ -1,10 +1,17 @@
 <template>
-  <div class="contact" :class="active ? 'active' : null">
+  <div class="contact" :class="{ active }">
+    <it-badge v-if="unreadMessages > 0" :value="unreadMessages" point>
+      <it-avatar
+        :src="`https://avatars.dicebear.com/api/${avatar}`"
+        size="40px"
+      />
+    </it-badge>
     <it-avatar
       :src="`https://avatars.dicebear.com/api/${avatar}`"
       size="40px"
-      color=""
+      v-else
     />
+
     <div class="contact__info">
       <p class="name">{{ name }}</p>
       <p class="last__message">
@@ -12,7 +19,7 @@
       </p>
     </div>
     <p class="timestamp">
-      10 minut temu
+      {{ new Date(lastMessageDate).toLocaleString() }}
     </p>
   </div>
 </template>
@@ -39,11 +46,26 @@ export default defineComponent({
       type: Number,
       required: true,
     },
+    highlight: {
+      type: Boolean,
+      default: true,
+    },
+    unreadMessages: {
+      type: Number,
+      default: 0,
+    },
+    lastMessageDate: {
+      type: String,
+      required: true,
+    },
   },
   setup(props) {
     const route = useRoute();
-    const active = computed(
-      () => parseInt(route.params.userid as string) === props.userid,
+
+    const active = computed(() =>
+      props.highlight
+        ? parseInt(route.params.userid as string) === props.userid
+        : null,
     );
 
     return {

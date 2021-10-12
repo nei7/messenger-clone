@@ -14,9 +14,12 @@ export class UserService {
   ) {}
 
   async getMessages(id: number, userid: number, skip = 0, limit = 50) {
-    return this.messageRepository.find({
+    const messages = await this.messageRepository.find({
       skip,
       take: limit,
+      order: {
+        sentAt: 'DESC',
+      },
       where: [
         {
           receiver: {
@@ -35,7 +38,17 @@ export class UserService {
           },
         },
       ],
+
       relations: ['receiver', 'sender'],
+    });
+    return messages.sort(function (a, b) {
+      if (a.id < b.id) {
+        return -1;
+      }
+      if (a.id > b.id) {
+        return 1;
+      }
+      return 0;
     });
   }
 
@@ -88,6 +101,7 @@ export class UserService {
         'users.id as id',
         'users.avatar as avatar',
         'messages.content as lastMessage',
+        'messages.sentAt as lastMessageDate',
       ])
       .from(User, 'users')
       .leftJoin(

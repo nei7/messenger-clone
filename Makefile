@@ -12,3 +12,6 @@ enter-client:
 
 enter-api:
 	docker exec -it chat-api-1 /bin/sh
+
+enter-sql:
+	docker exec -it chat-mysql-1 /bin/sh

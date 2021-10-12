@@ -21,11 +21,26 @@ const mutations: MutationTree<State> = {
   },
   [MutationType.SET_USER_MESSAGE]: (
     state: State,
-    payload: { userid: number; message: IMessage },
+    payload: {
+      receiverId: number;
+      senderId: number;
+      message: IMessage;
+      isUnread?: boolean;
+    },
   ) => {
-    const messages = state.messages.get(payload.userid);
+    const messages = state.messages.get(payload.receiverId);
+    const user = state.users.find(usr => usr.id === payload.receiverId);
+
     if (messages) {
       messages.push(payload.message);
+      if (user) {
+        user.lastMessage = payload.message.content;
+        user.unreadMessages = user.unreadMessages
+          ? user.unreadMessages++
+          : payload.isUnread
+          ? 1
+          : 0;
+      }
     }
   },
 };

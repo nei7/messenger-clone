@@ -1,7 +1,9 @@
-import { ActionTree } from "vuex";
-import { State } from "./state";
+import { ActionTree } from 'vuex';
+import { State } from './state';
 
-export enum ActionTypes {}
+export enum ActionTypes {
+  getUserMessages,
+}
 
 const actions: ActionTree<State, State> = {};
 
