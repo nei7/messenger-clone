@@ -9,12 +9,12 @@
     </header>
     <div class="chat__container" ref="chat">
       <template
-        v-for="(messages, timestamp) in sortMessages(user.messages)"
+        v-for="(msgs, timestamp) in sortMessages(messages)"
         :key="timestamp"
       >
         <h4>{{ timestamp }}</h4>
         <Message
-          v-for="message in messages"
+          v-for="message in msgs"
           :key="message.id"
           :content="message.content"
           :user="message.sender.name"
@@ -25,23 +25,28 @@
       </template>
     </div>
     <div class="chat__footer">
-      <it-input placeholder="Write sth..." v-model="message" />
+      <it-input
+        placeholder="Write sth..."
+        v-model="message"
+        @keydown.enter="sendMessage"
+      />
       <it-button type="primary" @click="sendMessage">send</it-button>
     </div>
   </section>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, watch, ref, nextTick } from 'vue';
+import { defineComponent, reactive, watch, ref, nextTick, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 import Message from '../components/Message.vue';
 import { IUser } from '../types/rooms';
 import { GettersType } from '../store/users/getters';
-import { IMessage } from '../types';
 import { sortMessages } from '../utils';
 import api from '../api';
 import { MutationType } from '../store/users/mutations';
+import { IMessage } from '../types';
+import { equal } from '../equal-vue';
 
 export default defineComponent({
   components: {
@@ -52,14 +57,34 @@ export default defineComponent({
     const route = useRoute();
     const chat = ref<HTMLElement>();
     const message = ref('');
+    const app = equal();
 
     const user = reactive<{
       data: IUser;
-      messages: IMessage[];
     }>({
       data: {} as IUser,
-      messages: [],
     });
+
+    const messages = computed<IMessage[]>(() =>
+      getters[`users/${GettersType.getUserMessages}`](
+        parseInt(route.params.userid as string),
+      ),
+    );
+
+    watch(
+      () => messages.value.length,
+      () => {
+        const { scrollHeight, scrollTop, clientHeight } = chat.value!;
+
+        if (scrollHeight - 50 < scrollTop + clientHeight) {
+          nextTick(() =>
+            chat.value!.scrollTo({
+              top: scrollHeight,
+            }),
+          );
+        }
+      },
+    );
 
     watch(
       () => route.params.userid,
@@ -70,9 +95,7 @@ export default defineComponent({
           );
           if (!data) return;
           user.data = data;
-          user.messages = getters[`users/${GettersType.getUserMessages}`](
-            parseInt(route.params.userid as string),
-          );
+
           nextTick(() =>
             chat.value!.scrollTo({
               top: chat.value!.scrollHeight,
@@ -95,6 +118,11 @@ export default defineComponent({
             userid,
             message: data,
           });
+        })
+        .catch(err => {
+          app.$Message.danger({
+            text: err.response.data.message || err.message,
+          });
         });
     };
 
@@ -104,6 +132,7 @@ export default defineComponent({
       chat,
       message,
       sendMessage,
+      messages,
     };
   },
 });

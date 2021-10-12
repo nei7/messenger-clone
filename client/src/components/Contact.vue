@@ -1,5 +1,5 @@
 <template>
-  <div class="contact">
+  <div class="contact" :class="active ? 'active' : null">
     <it-avatar
       :src="`https://avatars.dicebear.com/api/${avatar}`"
       size="40px"
@@ -18,7 +18,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { computed, defineComponent } from 'vue';
+import { useRoute } from 'vue-router';
 
 export default defineComponent({
   props: {
@@ -34,6 +35,20 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    userid: {
+      type: Number,
+      required: true,
+    },
+  },
+  setup(props) {
+    const route = useRoute();
+    const active = computed(
+      () => parseInt(route.params.userid as string) === props.userid,
+    );
+
+    return {
+      active,
+    };
   },
 });
 </script>
@@ -51,6 +66,9 @@ export default defineComponent({
 }
 
 .contact:hover {
+  background-color: #f6f6f6;
+}
+.active {
   background-color: #f6f6f6;
 }
 

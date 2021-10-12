@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class MessageDto {
   @ApiProperty()
   @IsString()
+  @IsNotEmpty()
   readonly content: string;
 
   @ApiProperty()

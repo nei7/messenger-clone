@@ -5,7 +5,7 @@
     <aside class="chat__details">
       <header>
         <it-avatar size="4.5rem" />
-        <p>user</p>
+        <p>{{ $store.state.user.name }}</p>
         <span>last active 3 hours ago</span>
       </header>
     </aside>

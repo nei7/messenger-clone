@@ -18,7 +18,7 @@ export class ChatController {
   async getMessages(@Request() req, @Body() message: MessageDto) {
     const msg = await this.chatService.addMessage(
       message.content,
-      req.user.id,
+      req.user,
       message.recieverId,
     );
     this.chatGateway.server

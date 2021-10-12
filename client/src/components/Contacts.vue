@@ -14,6 +14,7 @@
           :lastMessage="user.lastMessage"
           :avatar="user.avatar"
           :name="user.name"
+          :userid="user.id"
         ></Contact>
       </template>
     </div>

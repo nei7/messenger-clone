@@ -52,7 +52,7 @@ export function parseDate(date: string): DateJSON {
 
 export function sortMessages(
   messages: IMessage[],
-): { [n: string]: IMessage[] } | null {
+): { [n: string]: IMessage[] } | [] {
   const arr: { [n: string]: IMessage[] } = {};
   if (messages) {
     messages.forEach(msg => {
@@ -68,5 +68,5 @@ export function sortMessages(
 
     return arr;
   }
-  return null;
+  return [];
 }

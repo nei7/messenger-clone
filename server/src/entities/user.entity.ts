@@ -1,11 +1,4 @@
-import {
-  AfterInsert,
-  Column,
-  Entity,
-  FindConditions,
-  PrimaryGeneratedColumn,
-  Repository,
-} from 'typeorm';
+import { AfterInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 @Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn()

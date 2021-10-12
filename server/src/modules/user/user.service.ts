@@ -100,7 +100,6 @@ export class UserService {
         'messages',
         'messages.sentAt = last_messages.sentAt',
       );
-
     return users.execute();
   }
 }

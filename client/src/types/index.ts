@@ -4,6 +4,6 @@ export interface IMessage {
   id: number;
   content: string;
   sender: IUser;
-  reciever: IUser;
+  receiver: IUser;
   sentAt: string;
 }
