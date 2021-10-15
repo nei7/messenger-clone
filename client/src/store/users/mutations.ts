@@ -11,7 +11,14 @@ export enum MutationType {
 
 const mutations: MutationTree<State> = {
   [MutationType.SET_USERS]: (state: State, payload: IUser[]) => {
-    state.users = payload;
+    state.users = payload.map(usr => ({
+      ...usr,
+      properties: {
+        offset: 0,
+        unreadMessages: 0,
+        allMessagesLoaded: false,
+      },
+    }));
   },
   [MutationType.SET_USER_MESSAGES]: (
     state: State,
@@ -35,10 +42,9 @@ const mutations: MutationTree<State> = {
       messages.push(payload.message);
       if (user) {
         user.lastMessage = payload.message.content;
-        user.unreadMessages = user.unreadMessages
-          ? user.unreadMessages++
-          : payload.isUnread
-          ? 1
+        user.lastMessageDate = new Date().toString();
+        user.properties.unreadMessages = !payload.isUnread
+          ? user.properties.unreadMessages++
           : 0;
       }
     }

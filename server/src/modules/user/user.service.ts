@@ -13,9 +13,9 @@ export class UserService {
     private readonly messageRepository: Repository<Message>,
   ) {}
 
-  async getMessages(id: number, userid: number, skip = 0, limit = 50) {
+  async getMessages(id: number, userid: number, offset = 0, limit = 50) {
     const messages = await this.messageRepository.find({
-      skip,
+      skip: offset * limit,
       take: limit,
       order: {
         sentAt: 'DESC',

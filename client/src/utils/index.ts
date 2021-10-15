@@ -10,6 +10,11 @@ type DateJSON = {
   formatted: () => string;
 };
 
+const SECOND = 100 * 60;
+const MINUTE = SECOND * 60;
+const HOUR = MINUTE * 60;
+const DAY = HOUR * 12;
+
 export function parseDate(date: string): DateJSON {
   const dt = new Date(date);
   return {
@@ -48,6 +53,23 @@ export function parseDate(date: string): DateJSON {
       return `${this.day} ${months[this.month]} ${this.year} `;
     },
   };
+}
+
+export function howLongAgo(date: string): string {
+  const dt = new Date(date);
+  const difference = new Date().getTime() - dt.getTime();
+
+  if (difference < MINUTE) {
+    return `${(difference / SECOND).toFixed(0)} seconds ago`;
+  }
+  if (difference < HOUR) {
+    return `${(difference / MINUTE).toFixed(0)} minutes ago`;
+  }
+  if (difference < DAY) {
+    return `${(difference / HOUR).toFixed(0)} hours ago`;
+  }
+
+  return dt.toLocaleString();
 }
 
 export function sortMessages(

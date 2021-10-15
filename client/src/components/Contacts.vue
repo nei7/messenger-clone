@@ -15,7 +15,7 @@
           :avatar="user.avatar"
           :name="user.name"
           :userid="user.id"
-          :unreadMessages="user.unreadMessages"
+          :unreadMessages="user.properties.unreadMessages"
           :lastMessageDate="user.lastMessageDate"
         ></Contact>
       </template>
@@ -24,12 +24,13 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue';
+import { computed, defineComponent, inject } from 'vue';
 import Contact from '../components/Contact.vue';
 import { useStore } from 'vuex';
 import { ActionTypes } from '../store/users/actions';
 import { useRouter } from 'vue-router';
 import { IUser } from '../types/rooms';
+import { Loading } from '../types/loading';
 
 export default defineComponent({
   components: {
@@ -38,25 +39,33 @@ export default defineComponent({
   setup() {
     const store = useStore();
     const router = useRouter();
+    const $loading = inject('loading') as Loading;
 
     store.dispatch(`users/${ActionTypes.getUsers}`);
 
     const getMessages = (id: number) => {
+      const loading = $loading(document.querySelector('.chat__container')!, {
+        radius: 25,
+        stroke: 3,
+        color: '#0A84FF',
+      });
+
       store.dispatch(`users/${ActionTypes.getUserMessages}`, id).then(() => {
+        loading.destroy();
         router.push(`/chat/${id}`);
       });
     };
 
     const users = computed(() => {
       return (store.state.users.users as IUser[]).sort((a, b) => {
-        if (!a.unreadMessages || !b.unreadMessages) {
+        if (!a.properties.unreadMessages || !b.properties.allMessagesLoaded) {
           return 0;
         }
 
-        if (a.unreadMessages < b.unreadMessages) {
+        if (a.properties.unreadMessages < b.properties.unreadMessages) {
           return -1;
         }
-        if (a.unreadMessages > b.unreadMessages) {
+        if (a.properties.unreadMessages > b.properties.unreadMessages) {
           return 1;
         }
         return 0;
@@ -87,6 +96,9 @@ export default defineComponent({
   padding: 1rem 1rem 0rem;
 }
 
+.contacts header > div {
+  width: 100%;
+}
 .contacts h3 {
   font-weight: 400;
   font-size: 16px;

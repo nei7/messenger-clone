@@ -19,7 +19,7 @@
       </p>
     </div>
     <p class="timestamp">
-      {{ new Date(lastMessageDate).toLocaleString() }}
+      {{ howLongAgo(lastMessageDate) }}
     </p>
   </div>
 </template>
@@ -27,6 +27,7 @@
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
 import { useRoute } from 'vue-router';
+import { howLongAgo } from '../utils';
 
 export default defineComponent({
   props: {
@@ -70,6 +71,7 @@ export default defineComponent({
 
     return {
       active,
+      howLongAgo,
     };
   },
 });

@@ -1,7 +1,6 @@
 <template>
   <div class="message" :class="mine ? 'mine' : null">
     <it-avatar
-      color="#0a84ff"
       size="32px"
       :src="`https://avatars.dicebear.com/api/${avatar}`"
     />

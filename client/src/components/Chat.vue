@@ -7,7 +7,7 @@
       />
       <p>{{ user.name }}</p>
     </header>
-    <div class="chat__container" ref="chat">
+    <div class="chat__container" ref="chat" @scroll="loadMessages">
       <template
         v-for="(msgs, timestamp) in sortMessages(
           messages,
@@ -50,13 +50,14 @@ import api from '../api';
 import { MutationType } from '../store/users/mutations';
 import { IMessage } from '../types';
 import { equal } from '../equal-vue';
+import { ActionTypes } from '../store/users/actions';
 
 export default defineComponent({
   components: {
     Message,
   },
   setup() {
-    const { state, getters, commit } = useStore();
+    const { state, getters, commit, dispatch } = useStore();
     const route = useRoute();
     const chat = ref<HTMLElement>();
     const message = ref('');
@@ -126,6 +127,16 @@ export default defineComponent({
         });
     };
 
+    const loadMessages = async (e: Event) => {
+      const { scrollTop, clientHeight } = e.target as HTMLElement;
+      if (scrollTop <= clientHeight) {
+        await dispatch(
+          `users/${ActionTypes.loadUserMesages}`,
+          parseInt(route.params.userid as string),
+        );
+      }
+    };
+
     return {
       user,
       sortMessages,
@@ -133,6 +144,7 @@ export default defineComponent({
       message,
       sendMessage,
       messages,
+      loadMessages,
     };
   },
 });
@@ -153,7 +165,7 @@ export default defineComponent({
 .chat__container h4 {
   margin: 0.7rem auto;
   font-weight: 500;
-  opacity: 0.4;
+  opacity: 0.5;
   font-size: 13px;
 }
 

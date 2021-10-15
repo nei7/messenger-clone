@@ -38,13 +38,13 @@ export class UserController {
     @Request() req,
     @Param('id') id: string,
     @Query('limit') limit: string,
-    @Query('skip') skip: string,
+    @Query('offset') offset: string,
   ) {
     return this.userService.getMessages(
       req.user.id,
       parseInt(id),
-      parseInt(limit) || 0,
-      parseInt(skip) || 50,
+      parseInt(offset) || 0,
+      parseInt(limit) || 50,
     );
   }
 }

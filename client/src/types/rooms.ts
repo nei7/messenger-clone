@@ -4,8 +4,12 @@ export type IUser = {
   email: string;
   avatar: string;
   lastMessage: string;
-  unreadMessages?: number;
   lastMessageDate: string;
+  properties: {
+    unreadMessages: number;
+    allMessagesLoaded: boolean;
+    offset: number;
+  };
 };
 
 export interface Room {
