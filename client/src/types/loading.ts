@@ -1,6 +1,6 @@
 export type Loading = (
   parent: Element,
-  props?: LoadingProps
+  props?: LoadingProps,
 ) => { destroy(): void };
 
 export type LoadingProps = {
@@ -8,4 +8,5 @@ export type LoadingProps = {
   stroke?: number;
   radius?: number;
   text?: string;
+  background?: string;
 };

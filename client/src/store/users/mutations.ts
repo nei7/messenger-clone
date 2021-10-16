@@ -7,6 +7,8 @@ export enum MutationType {
   SET_USERS = 'SET_USERS',
   SET_USER_MESSAGES = 'SET_USER_MESSAGES',
   SET_USER_MESSAGE = 'SET_USER_MESSAGE',
+  SELECT_USER = 'SELECT_USER',
+  PURGE_UNREAD = 'PURGE_UNREAD',
 }
 
 const mutations: MutationTree<State> = {
@@ -40,14 +42,24 @@ const mutations: MutationTree<State> = {
 
     if (messages) {
       messages.push(payload.message);
+
       if (user) {
         user.lastMessage = payload.message.content;
         user.lastMessageDate = new Date().toString();
-        user.properties.unreadMessages = !payload.isUnread
-          ? user.properties.unreadMessages++
+        user.properties.unreadMessages = payload.isUnread
+          ? (user.properties.unreadMessages += 1)
           : 0;
       }
     }
+  },
+  [MutationType.SELECT_USER]: (state: State, id: number) => {
+    const user = state.users.find(user => user.id === id);
+    if (user) {
+      state.selectedUser = user;
+    }
+  },
+  [MutationType.PURGE_UNREAD]: (state: State) => {
+    if (state.selectedUser) state.selectedUser.properties.unreadMessages = 0;
   },
 };
 

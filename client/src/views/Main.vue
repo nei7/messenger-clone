@@ -3,11 +3,32 @@
     <Contacts></Contacts>
     <Chat></Chat>
     <aside class="chat__details">
-      <header>
-        <it-avatar size="4.5rem" />
-        <p>{{ $store.state.user.name }}</p>
-        <span>last active 3 hours ago</span>
-      </header>
+      <it-avatar
+        size="4rem"
+        :src="
+          `https://avatars.dicebear.com/api/` +
+            $store.state.users.selectedUser.avatar
+        "
+      />
+
+      <h4 style="margin-bottom: 2rem">
+        {{ $store.state.users.selectedUser.name }}
+      </h4>
+      <div class="collapse">
+        <div class="item">
+          <h4>Info</h4>
+          <it-icon name="expand_more" outlined />
+        </div>
+        <div class="item sub">
+          <h4>tak</h4>
+        </div>
+      </div>
+      <div class="collapse">
+        <div class="item">
+          <h4>Settings</h4>
+          <it-icon name="expand_more" outlined />
+        </div>
+      </div>
     </aside>
   </div>
 </template>
@@ -31,7 +52,6 @@ export default defineComponent({
   width: 100%;
   display: flex;
   box-sizing: border-box;
-  padding: 30px;
   background: rgb(241, 241, 241);
   overflow: hidden;
 }
@@ -39,9 +59,37 @@ export default defineComponent({
 .navigation {
   justify-content: center;
 }
+.collapse {
+  width: 90%;
+}
 
-header div {
-  width: 100%;
+.sub {
+  padding: 0.5em !important;
+  padding-left: 0.6rem !important;
+}
+.sub h4 {
+  opacity: 0.6 !important;
+  font-weight: 400 !important;
+}
+
+.item {
+  display: flex;
+  padding: 0.6rem;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.item:hover {
+  background-color: #f6f6f6;
+}
+
+.item h4 {
+  opacity: 0.8;
+  margin: 0;
+  font-weight: 500;
+  flex-grow: 1;
+  font-size: 14px;
 }
 
 header h3 {
@@ -49,40 +97,18 @@ header h3 {
 }
 
 .chat__details {
-  box-sizing: border-box;
+  padding-top: 2rem;
   display: flex;
   flex-direction: column;
-  width: 22rem;
+  width: 30rem;
   background-color: white;
   height: 100%;
-  transition: all 0.18s;
-}
 
-.chat__details header {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  margin-top: 2rem;
 }
-
-.chat__details header p {
-  font-size: 1.2rem;
+.chat__details > h4 {
+  margin-top: 14px;
   font-weight: 500;
-  margin-top: 1rem;
-}
-.chat__details header > span {
-  margin-top: 5px;
-  font-size: 0.8rem;
-  font-weight: 400;
-  opacity: 0.5;
-}
-
-.chat__details .details {
-  margin-top: 2rem;
-  display: flex;
-  gap: 0.1rem;
-  flex-direction: column;
-  padding: 0rem 0.7rem;
+  font-size: 1.2rem;
 }
 </style>

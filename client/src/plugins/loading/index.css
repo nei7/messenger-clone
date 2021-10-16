@@ -5,9 +5,8 @@
   justify-content: center;
   align-items: center;
   position: absolute;
-  background-color: white;
+  flex-direction: column;
 }
-
 .loading__overlay div {
   display: grid;
   justify-items: center;
@@ -15,5 +14,13 @@
 
 .loading__overlay p {
   font-size: 1rem;
-  margin-top: 1rem;
+  margin-top: 0.6rem;
+  font-weight: 500;
+  color: rgb(6, 126, 247);
+}
+
+.overlay {
+  padding: 0px !important;
+  overflow: hidden !important;
+  position: relative;
 }

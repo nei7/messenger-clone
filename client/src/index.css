@@ -101,3 +101,12 @@ body {
   border-radius: 15px;
   box-shadow: inset 0px 0px 0px 0px #f0f0f0;
 }
+
+.chat__container {
+  scrollbar-color: #e6e1e6 #f0f0f0;
+  scrollbar-width: thin;
+}
+
+.it-message {
+  position: absolute;
+}

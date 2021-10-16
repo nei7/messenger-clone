@@ -1,20 +1,21 @@
 <template>
   <div class="contact" :class="{ active }">
-    <it-badge v-if="unreadMessages > 0" :value="unreadMessages" point>
-      <it-avatar
-        :src="`https://avatars.dicebear.com/api/${avatar}`"
-        size="40px"
-      />
-    </it-badge>
     <it-avatar
       :src="`https://avatars.dicebear.com/api/${avatar}`"
       size="40px"
-      v-else
     />
 
     <div class="contact__info">
-      <p class="name">{{ name }}</p>
-      <p class="last__message">
+      <p class="name" :style="{ 'font-weight': unreadMessages ? 600 : 400 }">
+        {{ name }}
+      </p>
+      <p
+        class="last__message"
+        :style="{
+          'font-weight': unreadMessages ? 500 : 300,
+          opactiy: unreadMessages ? 1 : 0.4,
+        }"
+      >
         {{ lastMessage || 'no recent messages' }}
       </p>
     </div>
@@ -108,7 +109,7 @@ export default defineComponent({
 .name {
   color: black;
   font-size: 0.9rem;
-  opacity: 0.7;
+  opacity: 1;
   margin-bottom: 1px;
 }
 .last__message {

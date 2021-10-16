@@ -7,7 +7,7 @@
         placeholder="Search"
       />
     </header>
-    <div style="padding: 0 0.5rem">
+    <div style="padding: 0 0.8rem">
       <template v-for="(user, i) in users" :key="i">
         <Contact
           @click="getMessages(user.id)"
@@ -31,6 +31,8 @@ import { ActionTypes } from '../store/users/actions';
 import { useRouter } from 'vue-router';
 import { IUser } from '../types/rooms';
 import { Loading } from '../types/loading';
+import { MutationType } from '../store/users/mutations';
+import { equal } from '../equal-vue';
 
 export default defineComponent({
   components: {
@@ -41,19 +43,26 @@ export default defineComponent({
     const router = useRouter();
     const $loading = inject('loading') as Loading;
 
-    store.dispatch(`users/${ActionTypes.getUsers}`);
+    const app = equal();
 
     const getMessages = (id: number) => {
       const loading = $loading(document.querySelector('.chat__container')!, {
-        radius: 25,
-        stroke: 3,
+        radius: 22,
+        stroke: 3.4,
         color: '#0A84FF',
+        background: '#f9fafb',
       });
 
-      store.dispatch(`users/${ActionTypes.getUserMessages}`, id).then(() => {
-        loading.destroy();
-        router.push(`/chat/${id}`);
-      });
+      store
+        .dispatch(`users/${ActionTypes.getUserMessages}`, id)
+        .then(() => {
+          loading.destroy();
+          store.commit(`users/${MutationType.SELECT_USER}`, id);
+          router.push(`/chat/${id}`);
+        })
+        .catch(err => {
+          app.$Message.danger({ text: err.message });
+        });
     };
 
     const users = computed(() => {
@@ -85,7 +94,7 @@ export default defineComponent({
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  width: 27rem;
+  width: 33rem;
   background-color: white;
   height: 100%;
   transition: all 0.18s;

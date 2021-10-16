@@ -83,7 +83,7 @@ export class UserService {
   async getUsersWithLastMessage(id: string) {
     const sbQuery = getConnection()
       .createQueryBuilder()
-      .select(['senderId', 'max(sentAt) as sentAt'])
+      .select(['senderId', 'max(id) as id'])
       .from(Message, 'messages')
       .where(`messages.receiverId = ${id}`)
       .groupBy('senderId');
@@ -112,8 +112,9 @@ export class UserService {
       .leftJoin(
         `(${anthSbQuery.getQuery()})`,
         'messages',
-        'messages.sentAt = last_messages.sentAt',
+        'messages.id = last_messages.id',
       );
+
     return users.execute();
   }
 }

@@ -4,6 +4,7 @@ import { socket } from '@/plugins/socket.io';
 import { IMessage } from '@/types';
 import router from '../../router';
 import { ActionTypes } from '../users/actions';
+import { messageEvent, EventType } from '@/events/messages';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default (store: Store<any>): void => {
@@ -22,6 +23,10 @@ export default (store: Store<any>): void => {
         isUnread:
           parseInt(router.currentRoute.value.params.userid as string) !==
           message.sender.id,
+      });
+      messageEvent.emit(EventType.NEW_MESSAGE, {
+        senderId: message.sender.id,
+        content: message.content,
       });
     }
   });

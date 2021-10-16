@@ -7,25 +7,24 @@
       />
       <p>{{ user.name }}</p>
     </header>
-    <div class="chat__container" ref="chat" @scroll="loadMessages">
-      <template
-        v-for="(msgs, timestamp) in sortMessages(
-          messages,
-          user?.unreadMessages,
-        )"
-        :key="timestamp"
-      >
-        <h4>{{ timestamp }}</h4>
-        <Message
-          v-for="message in msgs"
-          :key="message.id"
-          :content="message.content"
-          :user="message.sender.name"
-          :avatar="message.sender.avatar"
-          :timestamp="timestamp === 'Today' ? message.sentAt : null"
-          :mine="message.sender.id === $store.state.user.id"
-        />
-      </template>
+    <div class="content">
+      <div class="chat__container" ref="chat" @scroll="loadMessages">
+        <template
+          v-for="(msgs, timestamp) in sortMessages(messages, unread)"
+          :key="timestamp"
+        >
+          <h4>{{ timestamp }}</h4>
+          <Message
+            v-for="message in msgs"
+            :key="message.id"
+            :content="message.content"
+            :user="message.sender.name"
+            :avatar="message.sender.avatar"
+            :timestamp="timestamp === 'Today' ? message.sentAt : null"
+            :mine="message.sender.id === $store.state.user.id"
+          />
+        </template>
+      </div>
     </div>
     <div class="chat__footer">
       <it-input
@@ -39,11 +38,18 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, watch, ref, nextTick, computed } from 'vue';
+import {
+  defineComponent,
+  watch,
+  ref,
+  nextTick,
+  computed,
+  onMounted,
+  onUnmounted,
+} from 'vue';
 import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 import Message from '../components/Message.vue';
-import { IUser } from '../types/rooms';
 import { GettersType } from '../store/users/getters';
 import { sortMessages } from '../utils';
 import api from '../api';
@@ -51,6 +57,11 @@ import { MutationType } from '../store/users/mutations';
 import { IMessage } from '../types';
 import { equal } from '../equal-vue';
 import { ActionTypes } from '../store/users/actions';
+import { debounce } from '../helpers';
+import { EventType, messageEvent } from '../events/messages';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare type Handler<T = any> = (event?: T) => void;
 
 export default defineComponent({
   components: {
@@ -62,36 +73,56 @@ export default defineComponent({
     const chat = ref<HTMLElement>();
     const message = ref('');
     const app = equal();
+    const unread = ref(0);
 
-    const user = computed(() =>
-      (state.users.users as IUser[]).find(
-        user => user.id === parseInt(route.params.userid as string),
-      ),
-    );
     const messages = computed<IMessage[]>(() =>
       getters[`users/${GettersType.getUserMessages}`](
         parseInt(route.params.userid as string),
       ),
     );
+    const user = computed(() => state.users.selectedUser);
 
-    watch(
-      () => messages.value.length,
-      () => {
-        const { scrollHeight, scrollTop, clientHeight } = chat.value!;
+    onMounted(() => {
+      const callback: Handler = (data: {
+        content: string;
+        senderId: number;
+      }) => {
+        const {
+          scrollHeight,
+          scrollTop,
+          clientHeight,
+        } = document.querySelector('.chat__container')!;
         if (scrollHeight - 50 < scrollTop + clientHeight) {
           nextTick(() =>
-            chat.value!.scrollTo({
+            document.querySelector('.chat__container')!.scrollTo({
               top: scrollHeight,
             }),
           );
+        } else {
+          if (data.senderId === parseInt(route.params.userid as string)) {
+            unread.value = 0;
+            const message = app.$Message({
+              text: data.content,
+              duration: 4000,
+              icon: 'person_outline',
+            });
+            document.querySelector('.content')!.appendChild(message.$el);
+          }
         }
-      },
-    );
+      };
+
+      messageEvent.on(EventType.NEW_MESSAGE, callback);
+    });
+
+    onUnmounted(() => messageEvent.all.delete(EventType.NEW_MESSAGE));
 
     watch(
       () => route.params.userid,
       () => {
-        if (user.value) {
+        if (state.users.selectedUser) {
+          unread.value = state.users.selectedUser.properties.unreadMessages;
+
+          commit(`users/${MutationType.PURGE_UNREAD}`);
           nextTick(() =>
             chat.value!.scrollTo({
               top: chat.value!.scrollHeight,
@@ -102,15 +133,16 @@ export default defineComponent({
     );
 
     const sendMessage = () => {
+      unread.value = 0;
       api
         .post('/chat/send', {
           content: message.value,
-          recieverId: user.value?.id,
+          recieverId: state.users.selectedUser?.id,
         })
         .then(({ data }) => {
           message.value = '';
           commit(`users/${MutationType.SET_USER_MESSAGE}`, {
-            receiverId: user.value?.id,
+            receiverId: state.users.selectedUser?.id,
             senderId: state.user.id,
             message: data,
           });
@@ -122,20 +154,20 @@ export default defineComponent({
         })
         .catch(err => {
           app.$Message.danger({
-            text: err.response.data.message || err.message,
+            text: err.response?.data.message || err.message,
           });
         });
     };
 
-    const loadMessages = async (e: Event) => {
-      const { scrollTop, clientHeight } = e.target as HTMLElement;
+    const loadMessages = debounce(async () => {
+      const { scrollTop, clientHeight } = chat.value as HTMLElement;
       if (scrollTop <= clientHeight) {
         await dispatch(
           `users/${ActionTypes.loadUserMesages}`,
           parseInt(route.params.userid as string),
         );
       }
-    };
+    }, 30);
 
     return {
       user,
@@ -145,6 +177,7 @@ export default defineComponent({
       sendMessage,
       messages,
       loadMessages,
+      unread,
     };
   },
 });
@@ -162,9 +195,17 @@ export default defineComponent({
   background-color: #f9fafb;
   overflow-y: scroll;
 }
+.content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  box-sizing: border-box;
+}
+
 .chat__container h4 {
   margin: 0.7rem auto;
-  font-weight: 500;
+  font-weight: 400;
   opacity: 0.5;
   font-size: 13px;
 }
