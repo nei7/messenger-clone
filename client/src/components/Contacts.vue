@@ -1,11 +1,7 @@
 <template>
   <aside class="contacts">
     <header>
-      <it-input
-        v-model="inputValue"
-        suffix-icon="search"
-        placeholder="Search"
-      />
+      <it-input v-model="search" suffix-icon="search" placeholder="Search" />
     </header>
     <div style="padding: 0 0.8rem">
       <template v-for="(user, i) in users" :key="i">
@@ -24,7 +20,7 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, inject } from 'vue';
+import { computed, defineComponent, inject, ref } from 'vue';
 import Contact from '../components/Contact.vue';
 import { useStore } from 'vuex';
 import { ActionTypes } from '../store/users/actions';
@@ -44,6 +40,8 @@ export default defineComponent({
     const $loading = inject('loading') as Loading;
 
     const app = equal();
+
+    const search = ref('');
 
     const getMessages = (id: number) => {
       const loading = $loading(document.querySelector('.chat__container')!, {
@@ -66,20 +64,27 @@ export default defineComponent({
     };
 
     const users = computed(() => {
-      return (store.state.users.users as IUser[]).sort((a, b) => {
-        if (a.properties.unreadMessages > b.properties.unreadMessages) {
-          return -1;
-        }
-        if (a.properties.unreadMessages < b.properties.unreadMessages) {
-          return 1;
-        }
-        return 0;
-      });
+      return (store.state.users.users as IUser[])
+        .sort((a, b) => {
+          if (a.properties.unreadMessages > b.properties.unreadMessages) {
+            return -1;
+          }
+          if (a.properties.unreadMessages < b.properties.unreadMessages) {
+            return 1;
+          }
+          return 0;
+        })
+        .filter(user => {
+          if (user.name.includes(search.value)) {
+            return true;
+          }
+        });
     });
 
     return {
       users,
       getMessages,
+      search,
     };
   },
 });
