@@ -4,6 +4,7 @@ import { User } from 'src/entities/user.entity';
 import { Repository, getConnection } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Message } from 'src/entities/message.entity';
+
 @Injectable()
 export class UserService {
   constructor(
@@ -80,6 +81,31 @@ export class UserService {
     });
   }
 
+  async getUnread(user: User) {
+    // SELECT senderId, count(senderId) FROM chat.messages where sentAt > "2021-10-16 22:47:16" AND receiverId = 22 GROUP by senderId
+
+    const query = getConnection()
+      .createQueryBuilder()
+      .select(['senderId', 'count(senderId) as unread'])
+      .from(Message, 'messages')
+      .where(
+        `sentAt > "${user.lastSeen.toISOString().split('T')[0]} ${
+          user.lastSeen.toTimeString().split(' ')[0]
+        }" and receiverId = ${user.id}`,
+      )
+      .groupBy(`senderId`);
+    return query.execute();
+  }
+
+  async updateUserSeenStatus(userid: number) {
+    this.userRepository.update(
+      { id: userid },
+      {
+        lastSeen: new Date(),
+      },
+    );
+  }
+
   async getUsersWithLastMessage(id: string) {
     const sbQuery = getConnection()
       .createQueryBuilder()
@@ -100,6 +126,7 @@ export class UserService {
         'users.email as email',
         'users.id as id',
         'users.avatar as avatar',
+        'users.createdAt as createdAt',
         'messages.content as lastMessage',
         'messages.sentAt as lastMessageDate',
       ])

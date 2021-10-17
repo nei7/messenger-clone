@@ -1,6 +1,8 @@
 import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { InjectRepository } from '@nestjs/typeorm';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
+import { Repository } from 'typeorm';
 import { ChatGateway } from './chat.gateway';
 import { ChatService } from './chat.service';
 import { MessageDto } from './dto/message.dto';
@@ -24,6 +26,7 @@ export class ChatController {
     this.chatGateway.server
       .to(message.recieverId.toString())
       .emit('message', msg);
+
     return msg;
   }
 }

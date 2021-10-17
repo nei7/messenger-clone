@@ -13,7 +13,9 @@ export enum ActionTypes {
 const actions: ActionTree<State, State> = {
   async [ActionTypes.getUsers]({ commit }) {
     const users = await (await api.get('/users')).data;
-    commit(MutationType.SET_USERS, users);
+    const unread = await await (await api.get('/users/me/unread')).data;
+
+    commit(MutationType.SET_USERS, { users, unread });
   },
   async [ActionTypes.getUserMessages]({ commit, state }, userid: number) {
     const user = state.users.find(user => user.id === userid);

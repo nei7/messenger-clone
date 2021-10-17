@@ -18,8 +18,7 @@ export class Room {
 
   @Column({
     nullable: false,
-    type: 'datetime',
-    default: () => 'CURRENT_TIMESTAMP',
+    type: 'timestamp',
   })
   createdAt: Date;
 }

@@ -5,6 +5,7 @@ export type IUser = {
   avatar: string;
   lastMessage: string;
   lastMessageDate: string;
+  createdAt: string;
   properties: {
     unreadMessages: number;
     allMessagesLoaded: boolean;

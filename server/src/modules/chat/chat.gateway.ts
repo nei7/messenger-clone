@@ -1,4 +1,5 @@
 import {
+  OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
@@ -15,7 +16,7 @@ import { User } from 'src/entities/user.entity';
     credentials: true,
   },
 })
-export class ChatGateway {
+export class ChatGateway implements OnGatewayDisconnect {
   constructor(
     private chatService: ChatService,
     private userService: UserService,
@@ -32,6 +33,7 @@ export class ChatGateway {
       delete user.iat;
       if (await this.userService.findOne(user)) {
         client.join(user.id.toString());
+        client.data = user;
         client.emit('success');
       } else
         client.emit('error', {
@@ -41,6 +43,12 @@ export class ChatGateway {
       client.emit('error', {
         error: err.message,
       });
+    }
+  }
+
+  handleDisconnect(client: Socket) {
+    if (client.data.id) {
+      this.userService.updateUserSeenStatus(client.data.id);
     }
   }
 }

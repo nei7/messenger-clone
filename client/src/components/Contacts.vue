@@ -67,14 +67,10 @@ export default defineComponent({
 
     const users = computed(() => {
       return (store.state.users.users as IUser[]).sort((a, b) => {
-        if (!a.properties.unreadMessages || !b.properties.allMessagesLoaded) {
-          return 0;
-        }
-
-        if (a.properties.unreadMessages < b.properties.unreadMessages) {
+        if (a.properties.unreadMessages > b.properties.unreadMessages) {
           return -1;
         }
-        if (a.properties.unreadMessages > b.properties.unreadMessages) {
+        if (a.properties.unreadMessages < b.properties.unreadMessages) {
           return 1;
         }
         return 0;

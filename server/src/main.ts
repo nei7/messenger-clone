@@ -8,8 +8,8 @@ import {
   ValidationError,
   ValidationPipe,
 } from '@nestjs/common';
-
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
 dotenv.config();
 
 async function bootstrap() {

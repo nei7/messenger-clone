@@ -15,4 +15,5 @@ export default {
   database: process.env.DB_NAME,
   entities: [User, Room, Message],
   synchronize: true,
+  bigNumberStrings: false,
 };

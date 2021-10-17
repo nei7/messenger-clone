@@ -12,15 +12,28 @@ export enum MutationType {
 }
 
 const mutations: MutationTree<State> = {
-  [MutationType.SET_USERS]: (state: State, payload: IUser[]) => {
-    state.users = payload.map(usr => ({
-      ...usr,
-      properties: {
-        offset: 0,
-        unreadMessages: 0,
-        allMessagesLoaded: false,
-      },
-    }));
+  [MutationType.SET_USERS]: (
+    state: State,
+    payload: {
+      users: IUser[];
+      unread: Array<{
+        senderId: number;
+        unread: number;
+      }>;
+    },
+  ) => {
+    state.users = payload.users.map(usr => {
+      const unread = payload.unread.find(u => u.senderId === usr.id);
+      return {
+        ...usr,
+        createdAt: new Date(usr.createdAt).toLocaleString(),
+        properties: {
+          offset: 0,
+          unreadMessages: unread ? unread.unread : 0,
+          allMessagesLoaded: false,
+        },
+      };
+    });
   },
   [MutationType.SET_USER_MESSAGES]: (
     state: State,

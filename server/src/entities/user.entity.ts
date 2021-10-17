@@ -16,6 +16,20 @@ export class User {
   @Column({ default: '' })
   avatar: string;
 
+  @Column({
+    nullable: false,
+    type: 'datetime',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  lastSeen: Date;
+
+  @Column({
+    nullable: false,
+    type: 'datetime',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
+  createdAt: Date;
+
   @AfterInsert()
   setAvatar() {
     this.avatar = `initials/${this.name}.svg`;

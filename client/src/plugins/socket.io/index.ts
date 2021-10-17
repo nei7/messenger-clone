@@ -8,7 +8,7 @@ export const socket = io(
   {
     reconnection: true,
     reconnectionDelay: 1000,
-    reconnectionAttempts: 5,
+    reconnectionAttempts: 3,
   },
 );
 

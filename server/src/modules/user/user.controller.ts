@@ -47,4 +47,11 @@ export class UserController {
       parseInt(limit) || 50,
     );
   }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('/me/unread')
+  async getUnreadMessages(@Request() req) {
+    return this.userService.getUnread(req.user);
+  }
 }
