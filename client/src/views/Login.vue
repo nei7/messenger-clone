@@ -140,6 +140,7 @@ export default defineComponent({
   background-color: white;
   padding: 3rem 4rem;
   border-radius: 0.5rem;
+  position: relative;
 }
 .login__form h2 {
   margin: 0px;

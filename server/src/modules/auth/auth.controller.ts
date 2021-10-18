@@ -39,7 +39,7 @@ export class AuthController {
       html: `Verification link: ${
         process.env.NODE_ENV === 'dev'
           ? 'http://localhost:3000/auth/confirm-email?token=' + token
-          : ''
+          : token
       }`,
     });
 
