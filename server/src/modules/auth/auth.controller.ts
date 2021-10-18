@@ -6,7 +6,7 @@ import {
   HttpCode,
   Post,
   Query,
-  Request,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
@@ -15,6 +15,7 @@ import { UserService } from 'src/modules/user/user.service';
 import { AuthService } from './auth.service';
 import * as jwt from 'jsonwebtoken';
 import { RegisterDto } from './dto/register.dto';
+import { Request } from 'express';
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -24,23 +25,22 @@ export class AuthController {
   ) {}
 
   @Post('/register')
-  async register(@Body() { name, email, password }: RegisterDto) {
+  async register(
+    @Body() { name, email, password }: RegisterDto,
+    @Req() req: Request,
+  ) {
     const token = jwt.sign({ name, email, password }, process.env.JWT_SECRET, {
       expiresIn: '20m',
     });
 
     const user = await this.userService.findOne({ email });
-
     if (user) throw new BadRequestException('User already exists');
 
     await this.mailService.sendMail({
       to: email,
       subject: 'Verify your account',
-      html: `Verification link: ${
-        process.env.NODE_ENV === 'dev'
-          ? 'http://localhost:3000/auth/confirm-email?token=' + token
-          : token
-      }`,
+      html: `Verification link: http://${req.headers.host}/auth/confirm-email?token=${token}
+      `,
     });
 
     return { message: 'Verification message has been sent to ' + email };
@@ -60,7 +60,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('protected')
-  get(@Request() req) {
+  get(@Req() req) {
     return req.user;
   }
 

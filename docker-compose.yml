@@ -2,7 +2,6 @@ version: '3.8'
 
 services:
   api:
-    container_name: api
     env_file: './server/.env'
     build:
       context: .
@@ -21,7 +20,7 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     ports:
-      - 8080:80
+      - 80:80
 
   mysql_server:
     image: 'mysql'

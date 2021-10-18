@@ -46,6 +46,34 @@ export class ChatGateway implements OnGatewayDisconnect {
     }
   }
 
+  @SubscribeMessage('setTyping')
+  async setTyping(
+    client: Socket,
+    data: {
+      channelId: number;
+    },
+  ) {
+    if (client.data.id) {
+      this.server.to(data.channelId.toString()).emit('typing', {
+        userId: client.data.id,
+      });
+    }
+  }
+
+  @SubscribeMessage('doneTyping')
+  async doneTyping(
+    client: Socket,
+    data: {
+      channelId: number;
+    },
+  ) {
+    if (client.data.id) {
+      this.server.to(data.channelId.toString()).emit('doneTyping', {
+        userId: client.data.id,
+      });
+    }
+  }
+
   handleDisconnect(client: Socket) {
     if (client.data.id) {
       this.userService.updateUserSeenStatus(client.data.id);

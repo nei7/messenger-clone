@@ -26,11 +26,17 @@
         </template>
       </div>
     </div>
+    <div class="isTyping" v-show="typing">
+      <div class="dot-flashing"></div>
+      <p><b>nei</b> pisze...</p>
+    </div>
+
     <div class="chat__footer">
       <it-input
         placeholder="Write sth..."
         v-model="message"
         @keydown.enter="sendMessage"
+        @keydown="handleKeyUp"
       />
       <it-button type="primary" @click="sendMessage">send</it-button>
     </div>
@@ -59,9 +65,12 @@ import { equal } from '../equal-vue';
 import { ActionTypes } from '../store/users/actions';
 import { debounce } from '../helpers';
 import { EventType, messageEvent } from '../events/messages';
+import { socket } from '../plugins/socket.io/';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare type Handler<T = any> = (event?: T) => void;
+
+let timer: number;
 
 export default defineComponent({
   components: {
@@ -74,6 +83,7 @@ export default defineComponent({
     const message = ref('');
     const app = equal();
     const unread = ref(0);
+    const typing = ref(false);
 
     const messages = computed<IMessage[]>(() =>
       getters[`users/${GettersType.getUserMessages}`](
@@ -111,10 +121,25 @@ export default defineComponent({
         }
       };
 
+      socket.on('typing', (data: { userId: number }) => {
+        console.log(data);
+        if (data.userId === state.users.selectedUser.id) {
+          typing.value = true;
+        }
+      });
+      socket.on('doneTyping', (data: { userId: number }) => {
+        console.log(data);
+        if (data.userId === state.users.selectedUser.id) {
+          typing.value = false;
+        }
+      });
       messageEvent.on(EventType.NEW_MESSAGE, callback);
     });
 
-    onUnmounted(() => messageEvent.all.delete(EventType.NEW_MESSAGE));
+    onUnmounted(() => {
+      messageEvent.all.delete(EventType.NEW_MESSAGE);
+      socket.off('typing');
+    });
 
     watch(
       () => route.params.userid,
@@ -159,6 +184,23 @@ export default defineComponent({
         });
     };
 
+    const handleKeyUp = () => {
+      clearTimeout(timer);
+
+      timer = setTimeout(() => {
+        socket.emit('doneTyping', { channelId: state.users.selectedUser.id });
+      }, 2000);
+    };
+
+    watch(
+      () => message.value,
+      (newValue: string, oldValue: string) => {
+        if (newValue.length === 1 || oldValue.length === 1) {
+          socket.emit('setTyping', { channelId: state.users.selectedUser.id });
+        }
+      },
+    );
+
     const loadMessages = debounce(async () => {
       const { scrollTop, clientHeight } = chat.value as HTMLElement;
       if (scrollTop <= clientHeight) {
@@ -178,6 +220,8 @@ export default defineComponent({
       messages,
       loadMessages,
       unread,
+      typing,
+      handleKeyUp,
     };
   },
 });
@@ -234,6 +278,21 @@ export default defineComponent({
   font-weight: 400;
   font-size: 1.1rem;
   overflow: hidden;
+}
+
+.isTyping {
+  width: 100%;
+  background-color: #f9fafb;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
+  padding: 0.5rem 2.2rem;
+}
+.isTyping > p {
+  margin-left: 20px;
+  font-size: 14px;
+  opacity: 0.7;
 }
 </style>
 
