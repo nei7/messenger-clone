@@ -28,7 +28,9 @@
     </div>
     <div class="isTyping" v-show="typing">
       <div class="dot-flashing"></div>
-      <p><b>nei</b> pisze...</p>
+      <p>
+        <b>{{ user.name }}</b> is typing...
+      </p>
     </div>
 
     <div class="chat__footer">
@@ -69,8 +71,6 @@ import { socket } from '../plugins/socket.io/';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 declare type Handler<T = any> = (event?: T) => void;
-
-let timer: number;
 
 export default defineComponent({
   components: {
@@ -122,16 +122,10 @@ export default defineComponent({
       };
 
       socket.on('typing', (data: { userId: number }) => {
-        console.log(data);
         if (data.userId === state.users.selectedUser.id) {
           typing.value = true;
         }
-      });
-      socket.on('doneTyping', (data: { userId: number }) => {
-        console.log(data);
-        if (data.userId === state.users.selectedUser.id) {
-          typing.value = false;
-        }
+        setTimeout(() => (typing.value = false), 2000);
       });
       messageEvent.on(EventType.NEW_MESSAGE, callback);
     });
@@ -184,22 +178,17 @@ export default defineComponent({
         });
     };
 
+    let sendTyping: boolean;
+
     const handleKeyUp = () => {
-      clearTimeout(timer);
-
-      timer = setTimeout(() => {
-        socket.emit('doneTyping', { channelId: state.users.selectedUser.id });
-      }, 2000);
+      if (!sendTyping) {
+        const userId = state.users.selectedUser.id;
+        sendTyping = true;
+        setTimeout(() => {
+          api.post(`chat/${userId}/typing`).then(() => (sendTyping = false));
+        }, 2000);
+      }
     };
-
-    watch(
-      () => message.value,
-      (newValue: string, oldValue: string) => {
-        if (newValue.length === 1 || oldValue.length === 1) {
-          socket.emit('setTyping', { channelId: state.users.selectedUser.id });
-        }
-      },
-    );
 
     const loadMessages = debounce(async () => {
       const { scrollTop, clientHeight } = chat.value as HTMLElement;
@@ -290,8 +279,8 @@ export default defineComponent({
   padding: 0.5rem 2.2rem;
 }
 .isTyping > p {
-  margin-left: 20px;
-  font-size: 14px;
+  margin-left: 1rem;
+  font-size: 12px;
   opacity: 0.7;
 }
 </style>

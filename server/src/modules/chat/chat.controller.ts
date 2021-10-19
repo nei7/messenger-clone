@@ -1,8 +1,13 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { InjectRepository } from '@nestjs/typeorm';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
-import { Repository } from 'typeorm';
 import { ChatGateway } from './chat.gateway';
 import { ChatService } from './chat.service';
 import { MessageDto } from './dto/message.dto';
@@ -28,5 +33,17 @@ export class ChatController {
       .emit('message', msg);
 
     return msg;
+  }
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('/:chatid/typing')
+  async setTyping(@Request() req, @Param('chatid') chatid: string) {
+    if (chatid) {
+      this.chatGateway.server.to(chatid).emit('typing', {
+        userId: req.user.id,
+      });
+    }
+
+    return;
   }
 }
